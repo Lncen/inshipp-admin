@@ -8,11 +8,11 @@ import { ElButton, ElImage } from 'element-plus';
 
 import { useVbenForm } from './form';
 
-export interface OnActionClickFn {
+export interface OnActionClickFn<T = any> {
   /**
    * 自己乱写的
    */
-  a: string;
+  (row: T): void;
 }
 
 setupVbenVxeTable({

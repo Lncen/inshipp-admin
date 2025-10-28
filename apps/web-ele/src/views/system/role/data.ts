@@ -4,7 +4,7 @@ import type { SystemRoleApi } from '#/api';
 
 import { h } from 'vue';
 
-import { ElButton } from 'element-plus';
+import { ElButton, ElTag } from 'element-plus';
 
 import { $t } from '#/locales';
 
@@ -14,7 +14,9 @@ export function useFormSchema(): VbenFormSchema[] {
       component: 'Input',
       fieldName: 'id',
       label: $t('system.role.id'),
-      // rules: 'required',
+      componentProps: {
+        readonly: true,
+      },
     },
     {
       component: 'Input',
@@ -38,8 +40,8 @@ export function useFormSchema(): VbenFormSchema[] {
         ],
         optionType: 'button',
       },
-      defaultValue: 1,
-      fieldName: 'status',
+      defaultValue: false,
+      fieldName: 'is_system',
       label: $t('system.role.status'),
     },
     {
@@ -93,7 +95,6 @@ export function useGridFormSchema(): VbenFormSchema[] {
 
 export function useColumns<T = SystemRoleApi.SystemRole>(
   onActionClick: OnActionClickFn<T>,
-  onStatusChange?: (newStatus: any, row: T) => PromiseLike<boolean | undefined>,
 ): VxeTableGridOptions['columns'] {
   return [
     {
@@ -104,17 +105,35 @@ export function useColumns<T = SystemRoleApi.SystemRole>(
     {
       field: 'name',
       title: $t('system.role.roleName'),
-      width: 200,
+      width: 150,
     },
-    { field: 'code', title: $t('system.role.code'), width: 200 },
+    { field: 'code', title: $t('system.role.code'), width: 100 },
     {
-      cellRender: {
-        attrs: { beforeChange: onStatusChange },
-        name: onStatusChange ? 'CellSwitch' : 'CellTag',
-      },
       field: 'is_system',
       title: $t('system.role.status'),
       width: 100,
+      slots: {
+        default: ({ row }: { row: SystemRoleApi.SystemRole }) => {
+          const isEnabled = row.is_system;
+          return h(
+            'div',
+            {
+              class: 'flex items-center justify-center',
+            },
+            [
+              h(
+                ElTag,
+                {
+                  type: isEnabled ? 'success' : 'info',
+                  size: 'small',
+                },
+                () =>
+                  isEnabled ? $t('common.enabled') : $t('common.disabled'),
+              ),
+            ],
+          );
+        },
+      },
     },
     {
       field: 'description',
@@ -124,7 +143,7 @@ export function useColumns<T = SystemRoleApi.SystemRole>(
     {
       field: 'created_at',
       title: $t('system.role.createTime'),
-      width: 200,
+      width: 150,
     },
     {
       align: 'center',
