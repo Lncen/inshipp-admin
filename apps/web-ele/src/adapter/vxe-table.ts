@@ -8,6 +8,13 @@ import { ElButton, ElImage } from 'element-plus';
 
 import { useVbenForm } from './form';
 
+export interface OnActionClickFn {
+  /**
+   * 自己乱写的
+   */
+  a: string;
+}
+
 setupVbenVxeTable({
   configVxeTable: (vxeUI) => {
     vxeUI.setConfig({

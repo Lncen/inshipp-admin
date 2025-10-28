@@ -1,23 +1,24 @@
 <script lang="ts" setup>
 import type { Recordable } from '@vben/types';
 
-import type { SystemGroupApi } from '#/api/system/group';
+import type { SystemRoleApi } from '#/api/system/role';
 
-import { computed, ref } from 'vue';
+import { computed, nextTick, ref } from 'vue';
 
-import { useVbenDrawer, VbenTree } from '@vben/common-ui';
+import { Loading, Tree, useVbenDrawer } from '@vben/common-ui';
 import { IconifyIcon } from '@vben/icons';
 
+// import { Spin } from 'ant-design-vue';
 import { useVbenForm } from '#/adapter/form';
-import { createGroup, getMenu, updateGroup } from '#/api/system/group';
-// import { getMenuList } from '#/api/system/menu';
+import { getMenuList } from '#/api/system/menu';
+import { createRole, updateRole } from '#/api/system/role';
 import { $t } from '#/locales';
 
 import { useFormSchema } from '../data';
 
 const emits = defineEmits(['success']);
 
-const formData = ref<SystemGroupApi.SystemGroup>();
+const formData = ref<SystemRoleApi.SystemRole>();
 
 const [Form, formApi] = useVbenForm({
   schema: useFormSchema(),
@@ -25,6 +26,7 @@ const [Form, formApi] = useVbenForm({
 });
 
 const permissions = ref<[]>([]);
+const loadingPermissions = ref(false);
 
 const id = ref();
 const [Drawer, drawerApi] = useVbenDrawer({
@@ -33,7 +35,7 @@ const [Drawer, drawerApi] = useVbenDrawer({
     if (!valid) return;
     const values = await formApi.getValues();
     drawerApi.lock();
-    (id.value ? updateGroup(id.value, values) : createGroup(values))
+    (id.value ? updateRole(id.value, values) : createRole(values))
       .then(() => {
         emits('success');
         drawerApi.close();
@@ -42,31 +44,38 @@ const [Drawer, drawerApi] = useVbenDrawer({
         drawerApi.unlock();
       });
   },
-  onOpenChange(isOpen) {
+
+  async onOpenChange(isOpen) {
     if (isOpen) {
-      const data = drawerApi.getData<SystemGroupApi.SystemGroup>();
+      const data = drawerApi.getData<SystemRoleApi.SystemRole>();
       formApi.resetForm();
+
       if (data) {
         formData.value = data;
         id.value = data.id;
-        formApi.setValues(data);
       } else {
         id.value = undefined;
       }
 
       if (permissions.value.length === 0) {
-        loadPermissions();
+        await loadPermissions();
+      }
+      // Wait for Vue to flush DOM updates (form fields mounted)
+      await nextTick();
+      if (data) {
+        formApi.setValues(data);
       }
     }
   },
 });
 
 async function loadPermissions() {
+  loadingPermissions.value = true;
   try {
-    const res = await getMenu();
-    permissions.value = res;
+    const res = await getMenuList();
+    permissions.value = res as unknown[];
   } finally {
-    //
+    loadingPermissions.value = false;
   }
 }
 
@@ -80,35 +89,41 @@ function getNodeClass(node: Recordable<any>) {
   const classes: string[] = [];
   if (node.value?.type === 'button') {
     classes.push('inline-flex');
-    if (node.index % 3 >= 1) {
-      classes.push('!pl-0');
-    }
   }
 
   return classes.join(' ');
 }
 </script>
 <template>
-  <!-- 抽屉宽度 -->
-  <Drawer :title="getDrawerTitle" class="w-full max-w-[550px]">
+  <Drawer :title="getDrawerTitle">
     <Form>
       <template #permissions="slotProps">
-        <VbenTree
-          :tree-data="permissions"
-          multiple
-          bordered
-          :default-expanded-level="2"
-          :get-node-class="getNodeClass"
-          v-bind="slotProps"
-          value-field="id"
-          label-field="meta.title"
-          icon-field="meta.icon"
-        >
-          <template #node="{ value }">
-            <IconifyIcon v-if="value.meta.icon" :icon="value.meta.icon" />
-            {{ $t(value.meta.title) }}
+        <Loading :spinning="loadingPermissions" class="w-full">
+          <Tree
+            :tree-data="permissions"
+            multiple
+            bordered
+            :default-expanded-level="2"
+            :get-node-class="getNodeClass"
+            v-bind="slotProps"
+            value-field="id"
+            label-field="meta.title"
+            icon-field="meta.icon"
+          >
+            <template #node="{ value }">
+              <IconifyIcon v-if="value.meta.icon" :icon="value.meta.icon" />
+              {{ $t(value.meta.title) }}
+            </template>
+          </Tree>
+
+          <!-- 可选：自定义 loading 图标（如果你希望统一图标） -->
+          <template #icon>
+            <IconifyIcon
+              icon="svg-spinners:bars-scale"
+              class="text-primary size-10"
+            />
           </template>
-        </VbenTree>
+        </Loading>
       </template>
     </Form>
   </Drawer>
