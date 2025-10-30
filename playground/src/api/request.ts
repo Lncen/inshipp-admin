@@ -14,7 +14,7 @@ import {
 import { useAccessStore } from '@vben/stores';
 import { cloneDeep } from '@vben/utils';
 
-import { message } from 'ant-design-vue';
+import { ElMessage } from 'element-plus';
 import JSONBigInt from 'json-bigint';
 
 import { useAuthStore } from '#/store';
@@ -109,7 +109,7 @@ function createRequestClient(baseURL: string, options?: RequestClientOptions) {
       const responseData = error?.response?.data ?? {};
       const errorMessage = responseData?.error ?? responseData?.message ?? '';
       // 如果没有错误信息，则会根据状态码进行提示
-      message.error(errorMessage || msg);
+      ElMessage.error(errorMessage || msg);
     }),
   );
 

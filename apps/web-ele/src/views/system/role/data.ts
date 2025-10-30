@@ -4,7 +4,7 @@ import type { SystemRoleApi } from '#/api';
 
 import { h } from 'vue';
 
-import { ElButton, ElTag } from 'element-plus';
+import { ElTag } from 'element-plus';
 
 import { $t } from '#/locales';
 
@@ -42,7 +42,7 @@ export function useFormSchema(): VbenFormSchema[] {
       },
       defaultValue: false,
       fieldName: 'is_system',
-      label: $t('system.role.status'),
+      label: $t('system.role.is_system'),
     },
     {
       component: 'Textarea',
@@ -78,7 +78,7 @@ export function useGridFormSchema(): VbenFormSchema[] {
         ],
       },
       fieldName: 'is_system',
-      label: $t('system.role.status'),
+      label: $t('system.role.is_system'),
     },
     {
       component: 'Input',
@@ -110,7 +110,7 @@ export function useColumns<T = SystemRoleApi.SystemRole>(
     { field: 'code', title: $t('system.role.code'), width: 100 },
     {
       field: 'is_system',
-      title: $t('system.role.status'),
+      title: $t('system.role.is_system'),
       width: 100,
       slots: {
         default: ({ row }: { row: SystemRoleApi.SystemRole }) => {
@@ -145,33 +145,60 @@ export function useColumns<T = SystemRoleApi.SystemRole>(
       title: $t('system.role.createTime'),
       width: 150,
     },
+    // {
+    //   align: 'center',
+    //   slots: {
+    //     default: ({ row }: { row: SystemRoleApi.SystemRole }) => {
+    //       return [
+    //         h(
+    //           ElButton,
+    //           {
+    //             type: 'primary',
+    //             size: 'small',
+    //             text: true,
+    //             onClick: () => onActionClick({ code: 'edit', row } as any),
+    //           },
+    //           '编辑',
+    //         ),
+    //         h(
+    //           ElPopconfirm,
+    //           {
+    //             title: '确定要删除该角色吗？',
+    //             confirmButtonText: '确定',
+    //             cancelButtonText: '取消',
+    //             onConfirm: () => {
+    //               onActionClick({ code: 'delete', row } as any);
+    //             },
+    //           },
+    //           {
+    //             reference: () =>
+    //               h(
+    //                 ElButton,
+    //                 {
+    //                   type: 'danger',
+    //                   size: 'small',
+    //                   text: true,
+    //                 },
+    //                 '删除',
+    //               ),
+    //           },
+    //         ),
+    //       ];
+    //     },
+    //   },
+    //   fixed: 'right',
+    //   title: $t('system.role.operation'),
+    //   width: 130,
+    // },
     {
       align: 'center',
-      slots: {
-        default: ({ row }: { row: SystemRoleApi.SystemRole }) => {
-          return [
-            h(
-              ElButton,
-              {
-                type: 'primary',
-                size: 'small',
-                text: true,
-                onClick: () => onActionClick({ code: 'edit', row } as any),
-              },
-              '编辑',
-            ),
-            h(
-              ElButton,
-              {
-                type: 'danger',
-                size: 'small',
-                text: true,
-                onClick: () => onActionClick({ code: 'delete', row } as any),
-              },
-              '删除',
-            ),
-          ];
+      cellRender: {
+        attrs: {
+          nameField: 'name',
+          nameTitle: $t('system.role.name'),
+          onClick: onActionClick,
         },
+        name: 'CellOperation',
       },
       field: 'operation',
       fixed: 'right',

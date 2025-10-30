@@ -63,6 +63,12 @@ const ElInputNumber = defineAsyncComponent(() =>
     import('element-plus/es/components/input-number/style/css'),
   ]).then(([res]) => res.ElInputNumber),
 );
+const ElAutoComplete = defineAsyncComponent(() =>
+  Promise.all([
+    import('element-plus/es/components/autocomplete/index'),
+    import('element-plus/es/components/autocomplete/style/css'),
+  ]).then(([res]) => res.ElAutocomplete),
+);
 const ElRadio = defineAsyncComponent(() =>
   Promise.all([
     import('element-plus/es/components/radio/index'),
@@ -156,6 +162,7 @@ const withDefaultPlaceholder = <T extends Component>(
 export type ComponentType =
   | 'ApiSelect'
   | 'ApiTreeSelect'
+  | 'AutoComplete'
   | 'Checkbox'
   | 'CheckboxGroup'
   | 'DatePicker'
@@ -204,6 +211,7 @@ async function initComponentAdapter() {
         visibleEvent: 'onVisibleChange',
       },
     ),
+    AutoComplete: withDefaultPlaceholder(ElAutoComplete, 'input'),
     Checkbox: ElCheckbox,
     CheckboxGroup: (props, { attrs, slots }) => {
       let defaultSlot;

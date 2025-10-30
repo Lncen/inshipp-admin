@@ -64,7 +64,14 @@
     "operation": "操作",
     "permissions": "权限",
     "setPermissions": "授权",
-    "code": "标识"
+    "code": "标识",
+    "is_system": "内置角色"
+  },
+  "permission": {
+    "title": "权限",
+    "content_type": "权限类型",
+    "id": "ID",
+    "name": "权限"
   },
   "user": {
     "title": "用户管理"

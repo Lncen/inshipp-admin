@@ -2,10 +2,10 @@ import type { VxeTableGridOptions } from '@vben/plugins/vxe-table';
 
 import type { VbenFormSchema } from '#/adapter/form';
 import type { OnActionClickFn } from '#/adapter/vxe-table';
-import type { SystemDeptApi } from '#/api/system/dept';
+import type { SystemPermissionApi } from '#/api/system/permission';
 
 import { z } from '#/adapter/form';
-import { getDeptList } from '#/api/system/dept';
+import { getContentTypeList } from '#/api/system/permission';
 import { $t } from '#/locales';
 
 /**
@@ -15,56 +15,42 @@ export function useSchema(): VbenFormSchema[] {
   return [
     {
       component: 'Input',
+      fieldName: 'id',
+      label: $t('system.permission.id'),
+      componentProps: {
+        disabled: true,
+      },
+    },
+    {
+      component: 'Input',
       fieldName: 'name',
-      label: $t('system.dept.deptName'),
+      label: $t('system.permission.name'),
       rules: z
         .string()
-        .min(2, $t('ui.formRules.minLength', [$t('system.dept.deptName'), 2]))
+        .min(2, $t('ui.formRules.minLength', [$t('system.permission.name'), 2]))
         .max(
           20,
-          $t('ui.formRules.maxLength', [$t('system.dept.deptName'), 20]),
+          $t('ui.formRules.maxLength', [$t('ssystem.permission.name'), 50]),
         ),
     },
     {
       component: 'ApiTreeSelect',
       componentProps: {
-        allowClear: true,
-        api: getDeptList,
+        api: getContentTypeList,
         class: 'w-full',
         labelField: 'name',
+        showSearch: true,
         valueField: 'id',
-        childrenField: 'children',
+        placeholder: $t('请选择权限类型'),
       },
-      fieldName: 'pid',
-      label: $t('system.dept.parentDept'),
-    },
-    {
-      component: 'RadioGroup',
-      componentProps: {
-        buttonStyle: 'solid',
-        options: [
-          { label: $t('common.enabled'), value: 1 },
-          { label: $t('common.disabled'), value: 0 },
-        ],
-        optionType: 'button',
-      },
-      defaultValue: 1,
-      fieldName: 'status',
-      label: $t('system.dept.status'),
-    },
-    {
-      component: 'Textarea',
-      componentProps: {
-        maxLength: 50,
-        rows: 3,
-        showCount: true,
-      },
-      fieldName: 'remark',
-      label: $t('system.dept.remark'),
+      fieldName: 'content_type',
+      label: $t('system.permission.content_type'),
       rules: z
-        .string()
-        .max(50, $t('ui.formRules.maxLength', [$t('system.dept.remark'), 50]))
-        .optional(),
+        .any()
+        .refine((val) => val !== undefined && val !== null && val !== '', {
+          message: $t('权限类型不能为空'),
+        }),
+      defaultValue: null,
     },
   ];
 }
@@ -75,38 +61,32 @@ export function useSchema(): VbenFormSchema[] {
  * @param onActionClick 表格操作按钮点击事件
  */
 export function useColumns(
-  onActionClick?: OnActionClickFn<SystemDeptApi.SystemDept>,
-): VxeTableGridOptions<SystemDeptApi.SystemDept>['columns'] {
+  onActionClick?: OnActionClickFn<SystemPermissionApi.SystemPermission>,
+): VxeTableGridOptions<SystemPermissionApi.SystemPermission>['columns'] {
   return [
     {
       align: 'left',
-      field: 'name',
+      field: 'id',
       fixed: 'left',
-      title: $t('system.dept.deptName'),
+      title: $t('system.permission.id'),
       treeNode: true,
       width: 150,
     },
     {
-      cellRender: { name: 'CellTag' },
-      field: 'status',
-      title: $t('system.dept.status'),
-      width: 100,
-    },
-    {
-      field: 'createTime',
-      title: $t('system.dept.createTime'),
+      field: 'name',
+      title: $t('system.permission.name'),
       width: 180,
     },
     {
-      field: 'remark',
-      title: $t('system.dept.remark'),
+      field: 'content_type',
+      title: $t('system.permission.content_type'),
     },
     {
       align: 'right',
       cellRender: {
         attrs: {
           nameField: 'name',
-          nameTitle: $t('system.dept.name'),
+          nameTitle: $t('system.permission.name'),
           onClick: onActionClick,
         },
         name: 'CellOperation',
@@ -118,7 +98,7 @@ export function useColumns(
           'edit', // 默认的编辑按钮
           {
             code: 'delete', // 默认的删除按钮
-            disabled: (row: SystemDeptApi.SystemDept) => {
+            disabled: (row: SystemPermissionApi.SystemPermission) => {
               return !!(row.children && row.children.length > 0);
             },
           },

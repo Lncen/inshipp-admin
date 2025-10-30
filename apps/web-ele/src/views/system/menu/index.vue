@@ -34,9 +34,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
     proxyConfig: {
       ajax: {
         query: async (_params) => {
-          const data = await getMenuList();
-          // 将数组格式转换为 VxeTable 期望的格式
-          return { items: data };
+          return await getMenuList();
         },
       },
     },

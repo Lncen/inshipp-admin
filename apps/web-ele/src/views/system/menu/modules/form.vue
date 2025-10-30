@@ -240,10 +240,21 @@ const schema: VbenFormSchema[] = [
     componentProps: {
       allowClear: true,
       class: 'w-full',
-      filterOption(input: string, option: { value: string }) {
-        return option.value.toLowerCase().includes(input.toLowerCase());
+      triggerOnFocus: true,
+      fetchSuggestions: (
+        queryString: string,
+        callback: (options: any[]) => void,
+      ) => {
+        const options = componentKeys.map((v) => ({ value: v }));
+        if (queryString) {
+          const results = options.filter((option) =>
+            option.value.toLowerCase().includes(queryString.toLowerCase()),
+          );
+          callback(results);
+        } else {
+          callback(options);
+        }
       },
-      options: componentKeys.map((v) => ({ value: v })),
     },
     dependencies: {
       rules: (values) => {
@@ -257,21 +268,7 @@ const schema: VbenFormSchema[] = [
     fieldName: 'component',
     label: $t('system.menu.component'),
   },
-  {
-    // 组件
-    component: 'Input',
-    fieldName: 'component',
-    label: $t('system.menu.component'),
-    dependencies: {
-      rules: (values) => {
-        return values.type === 'menu' ? 'required' : null;
-      },
-      show: (values) => {
-        return values.type === 'menu';
-      },
-      triggerFields: ['type'],
-    },
-  },
+
   {
     component: 'Input',
     dependencies: {
