@@ -94,14 +94,14 @@ export namespace SystemMenuApi {
  * 获取菜单数据列表
  */
 async function getMenuList() {
-  return requestClient.get<Array<SystemMenuApi.SystemMenu>>('menu/');
+  return requestClient.get<Array<SystemMenuApi.SystemMenu>>('system/menu/');
 }
 
 async function isMenuNameExists(
   name: string,
   id?: SystemMenuApi.SystemMenu['id'],
 ) {
-  return requestClient.get<boolean>('menu/is_name_exists/', {
+  return requestClient.get<boolean>('system/menu/is_name_exists/', {
     params: { id, name },
   });
 }
@@ -110,24 +110,16 @@ async function isMenuPathExists(
   path: string,
   id?: SystemMenuApi.SystemMenu['id'],
 ) {
-  return requestClient.get<boolean>('menu/is_path_exists/', {
+  return requestClient.get<boolean>('system/menu/is_path_exists/', {
     params: { id, path },
   });
 }
 
-async function isMenuAuthCodeExists(
-  authCode: string,
-  id?: SystemMenuApi.SystemMenu['id'],
-) {
-  return requestClient.get<boolean>('menu/authCode-exists/', {
-    params: { id, authCode },
-  });
-}
 /**
  * 获取权限树
  */
 async function GetpermTree() {
-  return requestClient.get<boolean>('menu/permtree/', {});
+  return requestClient.get<boolean>('system/menu/permtree/', {});
 }
 
 /**
@@ -137,7 +129,7 @@ async function GetpermTree() {
 async function createMenu(
   data: Omit<SystemMenuApi.SystemMenu, 'children' | 'id'>,
 ) {
-  return requestClient.post('menu/', data);
+  return requestClient.post('system/menu/', data);
 }
 
 /**
@@ -150,7 +142,7 @@ async function updateMenu(
   id: string,
   data: Omit<SystemMenuApi.SystemMenu, 'children' | 'id'>,
 ) {
-  return requestClient.put(`menu/${id}/`, data);
+  return requestClient.put(`system/menu/${id}/`, data);
 }
 
 /**
@@ -158,7 +150,7 @@ async function updateMenu(
  * @param id 菜单 ID
  */
 async function deleteMenu(id: string) {
-  return requestClient.delete(`menu/${id}/`);
+  return requestClient.delete(`system/menu/${id}/`);
 }
 
 export {
@@ -166,7 +158,6 @@ export {
   deleteMenu,
   getMenuList,
   GetpermTree,
-  isMenuAuthCodeExists,
   isMenuNameExists,
   isMenuPathExists,
   updateMenu,

@@ -32,7 +32,6 @@ const emit = defineEmits<{
 }>();
 const formData = ref<SystemMenuApi.SystemMenu>();
 const titleSuffix = ref<string>();
-const defaultRadioGroup = ref<string>();
 const schema: VbenFormSchema[] = [
   {
     component: 'RadioGroup',
@@ -41,7 +40,7 @@ const schema: VbenFormSchema[] = [
       options: getMenuTypeOptions(),
       optionType: 'button',
     },
-    defaultValue: defaultRadioGroup,
+    defaultValue: 'menu',
     fieldName: 'type',
     formItemClass: 'col-span-2 md:col-span-2',
     label: $t('system.menu.type'),
@@ -56,12 +55,12 @@ const schema: VbenFormSchema[] = [
       .max(30, $t('ui.formRules.maxLength', [$t('system.menu.menuName'), 30]))
       .refine(
         async (value: string) => {
-          // 如果是编辑模式且当前值未改变，则跳过校验
-          if (formData.value?.id && value === formData.value?.name) {
-            return true;
+          // 只有在创建新菜单时（没有id）才验证名称唯一性
+          if (!formData.value?.id) {
+            return !(await isMenuNameExists(value, formData.value?.id));
           }
-          // 否则调用异步校验函数检查名称是否存在
-          return !(await isMenuNameExists(value, formData.value?.id));
+          // 编辑现有菜单时跳过唯一性验证
+          return true;
         },
         (value) => ({
           message: $t('ui.formRules.alreadyExists', [
@@ -101,7 +100,7 @@ const schema: VbenFormSchema[] = [
           if (meta?.icon) {
             coms.push(h(IconifyIcon, { class: 'size-4', icon: meta.icon }));
           }
-          coms.push(h('span', { class: '' }, $t(label)));
+          coms.push(h('span', { class: '' }, $t(label || '')));
           return h('div', { class: 'flex items-center gap-1' }, coms);
         },
       };
@@ -165,10 +164,10 @@ const schema: VbenFormSchema[] = [
       )
       .refine(
         async (value: string) => {
-          if (formData.value?.id && value === formData.value?.path) {
-            return true;
+          if (!formData.value?.id) {
+            return !(await isMenuPathExists(value, formData.value?.id));
           }
-          return !(await isMenuPathExists(value, formData.value?.id));
+          return true;
         },
         (value) => ({
           message: $t('ui.formRules.alreadyExists', [
@@ -200,10 +199,10 @@ const schema: VbenFormSchema[] = [
         $t('ui.formRules.startWith', [$t('system.menu.path'), '/']),
       )
       .refine(async (value: string) => {
-        if (formData.value?.id && value === formData.value?.path) {
-          return true;
+        if (!formData.value?.id) {
+          return await isMenuPathExists(value, formData.value?.id);
         }
-        return await isMenuPathExists(value, formData.value?.id);
+        return true;
       }, $t('system.menu.activePathMustExist'))
       .optional(),
   },
@@ -236,8 +235,8 @@ const schema: VbenFormSchema[] = [
     label: $t('system.menu.activeIcon'),
   },
   {
-    // component: 'AutoComplete',
-    component: 'Input',
+    // 自动组件
+    component: 'AutoComplete',
     componentProps: {
       allowClear: true,
       class: 'w-full',
@@ -259,6 +258,21 @@ const schema: VbenFormSchema[] = [
     label: $t('system.menu.component'),
   },
   {
+    // 组件
+    component: 'Input',
+    fieldName: 'component',
+    label: $t('system.menu.component'),
+    dependencies: {
+      rules: (values) => {
+        return values.type === 'menu' ? 'required' : null;
+      },
+      show: (values) => {
+        return values.type === 'menu';
+      },
+      triggerFields: ['type'],
+    },
+  },
+  {
     component: 'Input',
     dependencies: {
       show: (values) => {
@@ -270,6 +284,7 @@ const schema: VbenFormSchema[] = [
     label: $t('system.menu.linkSrc'),
     rules: z.string().url($t('ui.formRules.invalidURL')),
   },
+
   {
     component: 'RadioGroup',
     componentProps: {
@@ -467,7 +482,6 @@ const [Drawer, drawerApi] = useVbenDrawer({
   onOpenChange(isOpen) {
     if (isOpen) {
       const data = drawerApi.getData<SystemMenuApi.SystemMenu>();
-      defaultRadioGroup.value = data?.type;
       if (data?.type === 'link') {
         data.linkSrc = data.meta?.link;
       } else if (data?.type === 'embedded') {
@@ -495,12 +509,6 @@ async function onSubmit() {
       await formApi.getValues<
         Omit<SystemMenuApi.SystemMenu, 'children' | 'id'>
       >();
-
-    // 确保权限字段始终是 id 值
-    if (data.perm && typeof data.perm === 'object' && data.perm.id) {
-      data.perm = data.perm.id;
-    }
-
     if (data.type === 'link') {
       data.meta = { ...data.meta, link: data.linkSrc };
     } else if (data.type === 'embedded') {

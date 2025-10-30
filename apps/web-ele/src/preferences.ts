@@ -14,6 +14,6 @@ export const overridesPreferences = defineOverridesPreferences({
     // 登录过期跳转 登录界面
     loginExpiredMode: 'modal',
     // 刷新令牌
-    // enableRefreshToken: true,
+    enableRefreshToken: true,
   },
 });

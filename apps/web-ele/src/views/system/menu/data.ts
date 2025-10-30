@@ -1,5 +1,9 @@
-import type { VxeTableGridOptions } from '#/adapter/vxe-table';
+import type { OnActionClickFn, VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { SystemMenuApi } from '#/api/system/menu';
+
+import { Fragment, h } from 'vue';
+
+import { ElButton, ElTag } from 'element-plus';
 
 import { $t } from '#/locales';
 
@@ -22,7 +26,7 @@ export function getMenuTypeOptions() {
 }
 
 export function useColumns(
-  onActionClick: SystemMenuApi.SystemMenu,
+  onActionClick: OnActionClickFn<SystemMenuApi.SystemMenu>,
 ): VxeTableGridOptions<SystemMenuApi.SystemMenu>['columns'] {
   return [
     {
@@ -36,13 +40,40 @@ export function useColumns(
     },
     {
       align: 'center',
-      cellRender: { name: 'CellTag', options: getMenuTypeOptions() },
       field: 'type',
       title: $t('system.menu.type'),
       width: 100,
+      slots: {
+        default: ({ row }: { row: SystemMenuApi.SystemMenu }) => {
+          const typeMap: Record<
+            string,
+            {
+              text: string;
+              type: 'danger' | 'info' | 'primary' | 'success' | 'warning';
+            }
+          > = {
+            catalog: { type: 'primary', text: $t('system.menu.typeCatalog') },
+            menu: { type: 'success', text: $t('system.menu.typeMenu') },
+            button: { type: 'danger', text: $t('system.menu.typeButton') },
+            embedded: { type: 'warning', text: $t('system.menu.typeEmbedded') },
+            link: { type: 'info', text: $t('system.menu.typeLink') },
+          };
+          const config = typeMap[row.type] || { type: 'info', text: row.type };
+          return h('div', [
+            h(
+              ElTag,
+              {
+                size: 'small',
+                type: config.type, // 此时类型已正确匹配
+              },
+              config.text,
+            ),
+          ]);
+        },
+      },
     },
     {
-      field: 'authCode',
+      field: 'perm',
       title: $t('system.menu.authCode'),
       width: 200,
     },
@@ -79,31 +110,82 @@ export function useColumns(
       field: 'status',
       title: $t('system.menu.status'),
       width: 100,
+      slots: {
+        default: ({ row }: { row: SystemMenuApi.SystemMenu }) => {
+          const statusMap: Record<
+            string,
+            {
+              text: string;
+              type: 'danger' | 'info' | 'primary' | 'success' | 'warning';
+            }
+          > = {
+            1: { type: 'success', text: '启用' },
+            0: { type: 'danger', text: '禁用' },
+          };
+          const config = statusMap[String(row.status)] || {
+            type: 'info',
+            text: String(row.status),
+          };
+          return h('div', [
+            h(
+              ElTag,
+              {
+                size: 'small',
+                type: config.type,
+              },
+              config.text,
+            ),
+          ]);
+        },
+      },
     },
 
     {
       align: 'right',
-      cellRender: {
-        attrs: {
-          nameField: 'name',
-          onClick: onActionClick,
-        },
-        name: 'CellOperation',
-        options: [
-          {
-            code: 'append',
-            text: '新增下级',
-          },
-          'edit', // 默认的编辑按钮
-          'delete', // 默认的删除按钮
-        ],
-      },
+      // 删除整个 cellRender 字段！
       field: 'operation',
       fixed: 'right',
       headerAlign: 'center',
       showOverflow: false,
       title: $t('system.menu.operation'),
       width: 200,
+
+      slots: {
+        default: ({ row }: { row: any }) => {
+          return h(Fragment, [
+            h(
+              ElButton,
+              {
+                type: 'primary',
+                size: 'small',
+                text: true,
+                onClick: () => onActionClick({ code: 'append', row }),
+              },
+              '新增下级',
+            ),
+            h(
+              ElButton,
+              {
+                type: 'primary',
+                size: 'small',
+                text: true,
+                onClick: () => onActionClick({ code: 'edit', row }),
+              },
+              '编辑',
+            ),
+            h(
+              ElButton,
+              {
+                type: 'danger',
+                size: 'small',
+                text: true,
+                onClick: () => onActionClick({ code: 'delete', row }),
+              },
+              '删除',
+            ),
+          ]);
+        },
+      },
     },
   ];
 }
