@@ -123,7 +123,12 @@ const ElUpload = defineAsyncComponent(() =>
     import('element-plus/es/components/upload/style/css'),
   ]).then(([res]) => res.ElUpload),
 );
-
+const ElText = defineAsyncComponent(() =>
+  Promise.all([
+    import('element-plus/es/components/text/index'),
+    import('element-plus/es/components/text/style/css'),
+  ]).then(([res]) => res.ElText),
+);
 const withDefaultPlaceholder = <T extends Component>(
   component: T,
   type: 'input' | 'select',
@@ -174,6 +179,7 @@ export type ComponentType =
   | 'Select'
   | 'Space'
   | 'Switch'
+  | 'Text'
   | 'TimePicker'
   | 'TreeSelect'
   | 'Upload'
@@ -184,6 +190,8 @@ async function initComponentAdapter() {
     // 如果你的组件体积比较大，可以使用异步加载
     // Button: () =>
     // import('xxx').then((res) => res.Button),
+
+    Text: withDefaultPlaceholder(ElText, 'input'),
     ApiSelect: withDefaultPlaceholder(
       {
         ...ApiComponent,

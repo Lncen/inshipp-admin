@@ -76,5 +76,23 @@
   "user": {
     "title": "用户管理"
   },
+  "logs": {
+    "title": "系统日志",
+    "list": "日志列表",
+    "id": "ID",
+    "username": "操作者",
+    "user_id": "操作者ID",
+    "operation": "操作",
+    "method": "方法",
+    "params": "参数",
+    "ip": "IP",
+    "resource_type": "类型",
+    "timestamp": "时间",
+    "severity_display": "级别",
+    "resource_name": "名称",
+    "detail": "详情",
+    "request_path": "URL",
+    "success": "结果"
+  },
   "title": "系统管理"
 }

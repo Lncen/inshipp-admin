@@ -1,9 +1,9 @@
 import type { OnActionClickFn, VxeTableGridOptions } from '#/adapter/vxe-table';
 import type { SystemMenuApi } from '#/api/system/menu';
 
-import { Fragment, h } from 'vue';
+import { h } from 'vue';
 
-import { ElButton, ElTag } from 'element-plus';
+import { ElTag } from 'element-plus';
 
 import { $t } from '#/locales';
 
@@ -139,53 +139,20 @@ export function useColumns(
         },
       },
     },
-
     {
-      align: 'right',
-      // 删除整个 cellRender 字段！
+      align: 'center',
+      cellRender: {
+        attrs: {
+          nameField: 'name',
+          nameTitle: $t('system.role.name'),
+          onClick: onActionClick,
+        },
+        name: 'CellOperation',
+      },
       field: 'operation',
       fixed: 'right',
-      headerAlign: 'center',
-      showOverflow: false,
-      title: $t('system.menu.operation'),
-      width: 200,
-
-      slots: {
-        default: ({ row }: { row: any }) => {
-          return h(Fragment, [
-            h(
-              ElButton,
-              {
-                type: 'primary',
-                size: 'small',
-                text: true,
-                onClick: () => onActionClick({ code: 'append', row }),
-              },
-              '新增下级',
-            ),
-            h(
-              ElButton,
-              {
-                type: 'primary',
-                size: 'small',
-                text: true,
-                onClick: () => onActionClick({ code: 'edit', row }),
-              },
-              '编辑',
-            ),
-            h(
-              ElButton,
-              {
-                type: 'danger',
-                size: 'small',
-                text: true,
-                onClick: () => onActionClick({ code: 'delete', row }),
-              },
-              '删除',
-            ),
-          ]);
-        },
-      },
+      title: $t('system.role.operation'),
+      width: 130,
     },
   ];
 }

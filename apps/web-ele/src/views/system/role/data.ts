@@ -145,51 +145,6 @@ export function useColumns<T = SystemRoleApi.SystemRole>(
       title: $t('system.role.createTime'),
       width: 150,
     },
-    // {
-    //   align: 'center',
-    //   slots: {
-    //     default: ({ row }: { row: SystemRoleApi.SystemRole }) => {
-    //       return [
-    //         h(
-    //           ElButton,
-    //           {
-    //             type: 'primary',
-    //             size: 'small',
-    //             text: true,
-    //             onClick: () => onActionClick({ code: 'edit', row } as any),
-    //           },
-    //           '编辑',
-    //         ),
-    //         h(
-    //           ElPopconfirm,
-    //           {
-    //             title: '确定要删除该角色吗？',
-    //             confirmButtonText: '确定',
-    //             cancelButtonText: '取消',
-    //             onConfirm: () => {
-    //               onActionClick({ code: 'delete', row } as any);
-    //             },
-    //           },
-    //           {
-    //             reference: () =>
-    //               h(
-    //                 ElButton,
-    //                 {
-    //                   type: 'danger',
-    //                   size: 'small',
-    //                   text: true,
-    //                 },
-    //                 '删除',
-    //               ),
-    //           },
-    //         ),
-    //       ];
-    //     },
-    //   },
-    //   fixed: 'right',
-    //   title: $t('system.role.operation'),
-    //   width: 130,
-    // },
     {
       align: 'center',
       cellRender: {
