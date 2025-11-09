@@ -30,6 +30,16 @@ export function useColumns(
 ): VxeTableGridOptions<SystemMenuApi.SystemMenu>['columns'] {
   return [
     {
+      field: 'drag',
+      title: '拖拽',
+      width: 60,
+      slots: {
+        default: () => {
+          return h('div', { class: 'drag-handle cursor-move' }, '⋮⋮');
+        },
+      },
+    },
+    {
       align: 'left',
       field: 'meta.title',
       fixed: 'left',
@@ -140,19 +150,28 @@ export function useColumns(
       },
     },
     {
-      align: 'center',
+      align: 'right',
       cellRender: {
         attrs: {
           nameField: 'name',
-          nameTitle: $t('system.role.name'),
           onClick: onActionClick,
         },
         name: 'CellOperation',
+        options: [
+          {
+            code: 'append',
+            text: '新增下级',
+          },
+          'edit', // 默认的编辑按钮
+          'delete', // 默认的删除按钮
+        ],
       },
       field: 'operation',
       fixed: 'right',
-      title: $t('system.role.operation'),
-      width: 130,
+      headerAlign: 'center',
+      showOverflow: false,
+      title: $t('system.menu.operation'),
+      width: 150,
     },
   ];
 }

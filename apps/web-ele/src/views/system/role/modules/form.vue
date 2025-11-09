@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import type { Recordable } from '@vben/types';
 
-import type { SystemMenuApi, SystemRoleApi } from '#/api';
+import type { SystemRoleApi } from '#/api';
 
 import { computed, nextTick, ref } from 'vue';
 
@@ -10,8 +10,7 @@ import { IconifyIcon } from '@vben/icons';
 
 // import { Spin } from 'ant-design-vue';
 import { useVbenForm } from '#/adapter/form';
-import { getMenuList } from '#/api/system/menu';
-import { createRole, updateRole } from '#/api/system/role';
+import { createRole, getPermList, updateRole } from '#/api/system/role';
 import { $t } from '#/locales';
 
 import { useFormSchema } from '../data';
@@ -25,7 +24,8 @@ const [Form, formApi] = useVbenForm({
   showDefaultActions: false,
 });
 
-const permissions = ref<SystemMenuApi.SystemMenu[]>([]);
+const permissions_ids = ref<SystemRoleApi.SystemRole[]>([]);
+const defaultCheckedKeys = ref<number[]>([]);
 const loadingPermissions = ref(false);
 
 const id = ref();
@@ -34,6 +34,16 @@ const [Drawer, drawerApi] = useVbenDrawer({
     const { valid } = await formApi.validate();
     if (!valid) return;
     const values = await formApi.getValues();
+    // 过滤掉非数字的权限ID
+    if (values.permissions_ids && Array.isArray(values.permissions_ids)) {
+      values.permissions_ids = values.permissions_ids
+        .filter(
+          (id) =>
+            typeof id === 'number' ||
+            (typeof id === 'string' && /^\d+$/.test(id)),
+        )
+        .map((id) => (typeof id === 'string' ? Number.parseInt(id, 10) : id));
+    }
     drawerApi.lock();
     (id.value ? updateRole(id.value, values) : createRole(values))
       .then(() => {
@@ -53,11 +63,12 @@ const [Drawer, drawerApi] = useVbenDrawer({
       if (data) {
         formData.value = data;
         id.value = data.id;
+        defaultCheckedKeys.value = data.permissions;
       } else {
         id.value = undefined;
       }
 
-      if (permissions.value.length === 0) {
+      if (permissions_ids.value.length === 0) {
         await loadPermissions();
       }
       // Wait for Vue to flush DOM updates (form fields mounted)
@@ -72,8 +83,8 @@ const [Drawer, drawerApi] = useVbenDrawer({
 async function loadPermissions() {
   loadingPermissions.value = true;
   try {
-    const res = await getMenuList();
-    permissions.value = res;
+    const res = await getPermList();
+    permissions_ids.value = res;
   } finally {
     loadingPermissions.value = false;
   }
@@ -97,24 +108,18 @@ function getNodeClass(node: Recordable<any>) {
 <template>
   <Drawer :title="getDrawerTitle">
     <Form>
-      <template #permissions="slotProps">
+      <template #permissions_ids="slotProps">
         <Loading :spinning="loadingPermissions" class="w-full">
           <Tree
-            :tree-data="permissions"
+            :tree-data="permissions_ids"
             multiple
             bordered
             :default-expanded-level="2"
             :get-node-class="getNodeClass"
             v-bind="slotProps"
             value-field="id"
-            label-field="meta.title"
-            icon-field="meta.icon"
-          >
-            <template #node="{ value }">
-              <IconifyIcon v-if="value.meta.icon" :icon="value.meta.icon" />
-              {{ $t(value.meta.title) }}
-            </template>
-          </Tree>
+            label-field="name"
+          />
 
           <!-- 可选：自定义 loading 图标（如果你希望统一图标） -->
           <template #icon>

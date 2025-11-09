@@ -26,8 +26,8 @@ export function useFormSchema(): VbenFormSchema[] {
     },
     {
       component: 'Input',
-      fieldName: 'code',
-      label: $t('system.role.code'),
+      fieldName: 'level',
+      label: $t('system.role.level'),
       rules: 'required',
     },
     {
@@ -41,17 +41,17 @@ export function useFormSchema(): VbenFormSchema[] {
         optionType: 'button',
       },
       defaultValue: false,
-      fieldName: 'is_system',
-      label: $t('system.role.is_system'),
+      fieldName: 'is_active',
+      label: $t('system.role.status'),
     },
     {
-      component: 'Textarea',
-      fieldName: 'remark',
+      component: 'Input',
+      fieldName: 'description',
       label: $t('system.role.remark'),
     },
     {
       component: 'Input',
-      fieldName: 'permissions',
+      fieldName: 'permissions_ids',
       formItemClass: 'items-start',
       label: $t('system.role.setPermissions'),
       modelPropName: 'modelValue',
@@ -61,34 +61,10 @@ export function useFormSchema(): VbenFormSchema[] {
 
 export function useGridFormSchema(): VbenFormSchema[] {
   return [
-    { component: 'Input', fieldName: 'id', label: $t('system.role.id') },
     {
       component: 'Input',
       fieldName: 'name',
       label: $t('system.role.roleName'),
-    },
-    { component: 'Input', fieldName: 'code', label: $t('system.role.code') },
-    {
-      component: 'Select',
-      componentProps: {
-        allowClear: true,
-        options: [
-          { label: $t('common.enabled'), value: true },
-          { label: $t('common.disabled'), value: false },
-        ],
-      },
-      fieldName: 'is_system',
-      label: $t('system.role.is_system'),
-    },
-    {
-      component: 'Input',
-      fieldName: 'description',
-      label: $t('system.role.remark'),
-    },
-    {
-      component: 'RangePicker',
-      fieldName: 'created_at',
-      label: $t('system.role.createTime'),
     },
   ];
 }
@@ -107,14 +83,23 @@ export function useColumns<T = SystemRoleApi.SystemRole>(
       title: $t('system.role.roleName'),
       width: 150,
     },
-    { field: 'code', title: $t('system.role.code'), width: 100 },
     {
-      field: 'is_system',
-      title: $t('system.role.is_system'),
+      field: 'permissions_count',
+      title: $t('system.role.permissions_count'),
+      width: 100,
+    },
+    {
+      field: 'users_count',
+      title: $t('system.role.users_count'),
+      width: 100,
+    },
+    {
+      field: 'is_active',
+      title: $t('system.role.is_active'),
       width: 100,
       slots: {
         default: ({ row }: { row: SystemRoleApi.SystemRole }) => {
-          const isEnabled = row.is_system;
+          const isEnabled = row.is_active;
           return h(
             'div',
             {
@@ -141,8 +126,8 @@ export function useColumns<T = SystemRoleApi.SystemRole>(
       title: $t('system.role.remark'),
     },
     {
-      field: 'created_at',
-      title: $t('system.role.createTime'),
+      field: 'updated_at',
+      title: $t('system.role.updated_at'),
       width: 150,
     },
     {

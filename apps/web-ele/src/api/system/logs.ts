@@ -54,6 +54,7 @@ export namespace SystemLogsApi {
     success: boolean;
     error_message: string;
     severity: SeverityLevel;
+    severity_display: string;
     metadata: Recordable<any>;
     session_key: string;
     action_display: string;

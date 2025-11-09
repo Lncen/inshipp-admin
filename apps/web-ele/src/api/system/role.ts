@@ -7,8 +7,8 @@ export namespace SystemRoleApi {
     [key: string]: any;
     id: string;
     name: string;
-    permissions: string[];
-    remark?: string;
+    permission_ids: string[];
+    description?: string;
     status: 0 | 1;
   }
 }
@@ -20,6 +20,13 @@ async function getRoleList(params: Recordable<any>) {
   return requestClient.get<Array<SystemRoleApi.SystemRole>>('system/role/', {
     params,
   });
+}
+
+/**
+ * 获取角色列表数据
+ */
+async function getPermList() {
+  return requestClient.get<Array<SystemRoleApi.SystemRole>>('perm-tree/');
 }
 
 /**
@@ -51,4 +58,4 @@ async function deleteRole(id: string) {
   return requestClient.delete(`system/role/${id}/`);
 }
 
-export { createRole, deleteRole, getRoleList, updateRole };
+export { createRole, deleteRole, getPermList, getRoleList, updateRole };

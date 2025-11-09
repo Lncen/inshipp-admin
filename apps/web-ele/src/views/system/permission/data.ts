@@ -15,24 +15,24 @@ export function useSchema(): VbenFormSchema[] {
   return [
     {
       component: 'Input',
-      fieldName: 'id',
+      fieldName: 'name',
       label: $t('system.permission.id'),
       componentProps: {
         disabled: true,
       },
     },
-    {
-      component: 'Input',
-      fieldName: 'name',
-      label: $t('system.permission.name'),
-      rules: z
-        .string()
-        .min(2, $t('ui.formRules.minLength', [$t('system.permission.name'), 2]))
-        .max(
-          20,
-          $t('ui.formRules.maxLength', [$t('ssystem.permission.name'), 50]),
-        ),
-    },
+    // {
+    //   component: 'Input',
+    //   fieldName: 'name',
+    //   label: $t('system.permission.name'),
+    //   rules: z
+    //     .string()
+    //     .min(2, $t('ui.formRules.minLength', [$t('system.permission.name'), 2]))
+    //     .max(
+    //       20,
+    //       $t('ui.formRules.maxLength', [$t('system.permission.name'), 50]),
+    //     ),
+    // },
     {
       component: 'ApiTreeSelect',
       componentProps: {

@@ -21,6 +21,7 @@ const ElButton = defineAsyncComponent(() =>
     import('element-plus/es/components/button/style/css'),
   ]).then(([res]) => res.ElButton),
 );
+
 const ElCheckbox = defineAsyncComponent(() =>
   Promise.all([
     import('element-plus/es/components/checkbox/index'),

@@ -123,6 +123,15 @@ async function GetpermTree() {
 }
 
 /**
+ * 表单里的上级菜单选项
+ */
+async function getMenuParentList() {
+  return requestClient.get<Array<SystemMenuApi.SystemMenu>>(
+    'system/menu/parent/',
+  );
+}
+
+/**
  * 创建菜单
  * @param data 菜单数据
  */
@@ -157,6 +166,7 @@ export {
   createMenu,
   deleteMenu,
   getMenuList,
+  getMenuParentList,
   GetpermTree,
   isMenuNameExists,
   isMenuPathExists,

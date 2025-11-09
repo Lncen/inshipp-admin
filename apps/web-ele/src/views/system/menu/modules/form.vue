@@ -3,10 +3,9 @@ import type { Recordable } from '@vben/types';
 
 import type { VbenFormSchema } from '#/adapter/form';
 
-import { computed, h, ref } from 'vue';
+import { computed, ref } from 'vue';
 
 import { useVbenDrawer } from '@vben/common-ui';
-import { IconifyIcon } from '@vben/icons';
 import { $te } from '@vben/locales';
 import { getPopupContainer } from '@vben/utils';
 
@@ -15,7 +14,7 @@ import { breakpointsTailwind, useBreakpoints } from '@vueuse/core';
 import { useVbenForm, z } from '#/adapter/form';
 import {
   createMenu,
-  getMenuList,
+  getMenuParentList,
   GetpermTree,
   isMenuNameExists,
   isMenuPathExists,
@@ -73,7 +72,7 @@ const schema: VbenFormSchema[] = [
   {
     component: 'ApiTreeSelect',
     componentProps: {
-      api: getMenuList,
+      api: getMenuParentList,
       class: 'w-full',
       filterTreeNode(input: string, node: Recordable<any>) {
         if (!input || input.length === 0) {
@@ -92,19 +91,7 @@ const schema: VbenFormSchema[] = [
     },
     fieldName: 'pid',
     label: $t('system.menu.parent'),
-    renderComponentContent() {
-      return {
-        title({ label, meta }: { label: string; meta: Recordable<any> }) {
-          const coms = [];
-          if (!label) return '';
-          if (meta?.icon) {
-            coms.push(h(IconifyIcon, { class: 'size-4', icon: meta.icon }));
-          }
-          coms.push(h('span', { class: '' }, $t(label || '')));
-          return h('div', { class: 'flex items-center gap-1' }, coms);
-        },
-      };
-    },
+    defaultValue: '', // 添加默认值
   },
   {
     component: 'ApiTreeSelect',
@@ -114,7 +101,7 @@ const schema: VbenFormSchema[] = [
       labelField: 'name',
       showSearch: true,
       treeDefaultExpandAll: true,
-      valueField: 'id', // 确保这个配置正确
+      valueField: 'id',
       childrenField: 'children',
       placeholder: $t('请选择权限'),
     },
@@ -125,7 +112,7 @@ const schema: VbenFormSchema[] = [
       .refine((val) => val !== undefined && val !== null && val !== '', {
         message: $t('权限不能为空'),
       }),
-    defaultValue: null,
+    defaultValue: '', // 使用空字符串而不是 null
   },
   {
     component: 'Input',
@@ -486,12 +473,22 @@ const [Drawer, drawerApi] = useVbenDrawer({
       }
       if (data) {
         formData.value = data;
+        // 确保 perm 字段不会是 undefined 或 null
+        if (formData.value.perm === null) {
+          formData.value.perm = '';
+        }
         formApi.setValues(formData.value);
         titleSuffix.value = formData.value.meta?.title
           ? $t(formData.value.meta.title)
           : '';
       } else {
         formApi.resetForm();
+        // 设置明确的默认值
+        formApi.setValues({
+          type: 'menu',
+          status: 1,
+          perm: '', // 明确设置为空字符串
+        });
         titleSuffix.value = '';
       }
     }
