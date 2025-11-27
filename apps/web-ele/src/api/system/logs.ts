@@ -88,7 +88,7 @@ export namespace SystemLogsApi {
  * 获取审计日志列表数据
  */
 async function getAuditLogList(params: Recordable<any>) {
-  return requestClient.get<Array<SystemLogsApi.AuditLog>>('audit-logs/logs/', {
+  return requestClient.get<Array<SystemLogsApi.AuditLog>>('audit-logs/logs', {
     params,
   });
 }
@@ -98,7 +98,7 @@ async function getAuditLogList(params: Recordable<any>) {
  * @param data 审计日志数据
  */
 async function createAuditLog(data: Omit<SystemLogsApi.AuditLog, 'id'>) {
-  return requestClient.post('audit-logs/logs/', data);
+  return requestClient.post('audit-logs/logs', data);
 }
 
 /**
@@ -106,7 +106,7 @@ async function createAuditLog(data: Omit<SystemLogsApi.AuditLog, 'id'>) {
  * @param id 审计日志 ID
  */
 async function getAuditLogDetail(id: string) {
-  return requestClient.get<SystemLogsApi.AuditLog>(`audit-logs/logs/${id}/`);
+  return requestClient.get<SystemLogsApi.AuditLog>(`audit-logs/logs/${id}`);
 }
 
 /**
@@ -118,7 +118,7 @@ async function updateAuditLog(
   id: string,
   data: Omit<SystemLogsApi.AuditLog, 'id'>,
 ) {
-  return requestClient.put(`audit-logs/logs/${id}/`, data);
+  return requestClient.put(`audit-logs/logs/${id}`, data);
 }
 
 /**
@@ -127,7 +127,7 @@ async function updateAuditLog(
  * @param data 审计日志数据
  */
 async function partialUpdateAuditLog(id: string, data: Recordable<any>) {
-  return requestClient.put(`audit-logs/logs/${id}/`, data);
+  return requestClient.put(`audit-logs/logs/${id}`, data);
 }
 
 /**
@@ -135,7 +135,7 @@ async function partialUpdateAuditLog(id: string, data: Recordable<any>) {
  * @param id 审计日志 ID
  */
 async function deleteAuditLog(id: string) {
-  return requestClient.delete(`audit-logs/logs/${id}/`);
+  return requestClient.delete(`audit-logs/logs/${id}`);
 }
 
 /**
@@ -143,7 +143,7 @@ async function deleteAuditLog(id: string) {
  */
 async function getAuditLogStatistics() {
   return requestClient.get<SystemLogsApi.AuditLogStatistics>(
-    'audit-logs/logs/statistics/',
+    'audit-logs/logs/statistics',
   );
 }
 
@@ -151,7 +151,7 @@ async function getAuditLogStatistics() {
  * 导出审计日志
  */
 async function exportAuditLogs(params: Recordable<any>) {
-  return requestClient.get('audit-logs/logs/export/', {
+  return requestClient.get('audit-logs/logs/export', {
     params,
     responseType: 'blob',
   });
@@ -164,14 +164,14 @@ async function exportAuditLogs(params: Recordable<any>) {
 async function bulkCreateAuditLogs(
   data: Array<Omit<SystemLogsApi.AuditLog, 'id'>>,
 ) {
-  return requestClient.post('audit-logs/logs/bulk_create/', data);
+  return requestClient.post('audit-logs/logs/bulk_create', data);
 }
 
 /**
  * 归档旧日志
  */
 async function archiveOldLogs(data: Recordable<any>) {
-  return requestClient.post('audit-logs/logs/archive_old_logs/', data);
+  return requestClient.post('audit-logs/logs/archive_old_logs', data);
 }
 
 /**
@@ -179,7 +179,7 @@ async function archiveOldLogs(data: Recordable<any>) {
  */
 async function getRecentActivity(params: Recordable<any>) {
   return requestClient.get<Array<SystemLogsApi.AuditLog>>(
-    'audit-logs/logs/recent_activity/',
+    'audit-logs/logs/recent_activity',
     { params },
   );
 }
@@ -189,7 +189,7 @@ async function getRecentActivity(params: Recordable<any>) {
  */
 async function getMyActivity(params: Recordable<any>) {
   return requestClient.get<Array<SystemLogsApi.AuditLog>>(
-    'audit-logs/logs/my_activity/',
+    'audit-logs/logs/my_activity',
     { params },
   );
 }
@@ -199,7 +199,7 @@ async function getMyActivity(params: Recordable<any>) {
  */
 async function getArchiveList(params: Recordable<any>) {
   return requestClient.get<Array<SystemLogsApi.AuditLogArchive>>(
-    'audit-logs/archives/',
+    'audit-logs/archives',
     { params },
   );
 }
@@ -210,7 +210,7 @@ async function getArchiveList(params: Recordable<any>) {
  */
 async function getArchiveDetail(id: string) {
   return requestClient.get<SystemLogsApi.AuditLogArchive>(
-    `audit-logs/archives/${id}/`,
+    `audit-logs/archives/${id}`,
   );
 }
 

@@ -24,7 +24,7 @@ export namespace SystemDeptApi {
  * 获取部门列表数据
  */
 async function getDeptList(params?: { page?: number; page_size?: number }) {
-  return requestClient.get<SystemDeptApi.SystemDeptData>('/system/dept/', {
+  return requestClient.get<SystemDeptApi.SystemDeptData>('/system/dept', {
     params,
   });
 }
@@ -36,7 +36,7 @@ async function getDeptList(params?: { page?: number; page_size?: number }) {
 async function createDept(
   data: Omit<SystemDeptApi.SystemDept, 'children' | 'id'>,
 ) {
-  return requestClient.post('/system/dept/', data);
+  return requestClient.post('/system/dept', data);
 }
 
 /**
@@ -49,7 +49,7 @@ async function updateDept(
   id: string,
   data: Omit<SystemDeptApi.SystemDept, 'children' | 'id'>,
 ) {
-  return requestClient.put(`/system/dept/${id}/`, data);
+  return requestClient.put(`/system/dept/${id}`, data);
 }
 
 /**
@@ -57,14 +57,14 @@ async function updateDept(
  * @param id 部门 ID
  */
 async function deleteDept(id: string) {
-  return requestClient.delete(`/system/dept/${id}/`);
+  return requestClient.delete(`/system/dept/${id}`);
 }
 
 async function isDeptNameExists(
   name: string,
   id?: SystemDeptApi.SystemDept['id'],
 ) {
-  return requestClient.get<boolean>('dept/deptName-exists/', {
+  return requestClient.get<boolean>('dept/deptName-exists', {
     params: { id, name },
   });
 }

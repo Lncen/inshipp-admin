@@ -74,9 +74,9 @@ export function useColumns(
               ElTag,
               {
                 size: 'small',
-                type: config.type, // 此时类型已正确匹配
+                type: config.type,
               },
-              config.text,
+              () => config.text,
             ),
           ]);
         },
@@ -143,7 +143,7 @@ export function useColumns(
                 size: 'small',
                 type: config.type,
               },
-              config.text,
+              () => config.text,
             ),
           ]);
         },

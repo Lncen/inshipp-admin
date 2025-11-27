@@ -21,7 +21,7 @@ export namespace SystemPermissionApi {
  */
 async function getPermissionList(params?: Recordable<any>) {
   return requestClient.get<Array<SystemPermissionApi.SystemPermissionData>>(
-    'permissions/',
+    'perm-tree/',
     {
       params,
     },
@@ -48,7 +48,7 @@ async function updatePermission(
   id: string,
   data: Omit<SystemPermissionApi.SystemPermission, 'id'>,
 ) {
-  return requestClient.put(`permissions/${id}/`, data);
+  return requestClient.put(`permissions/${id}`, data);
 }
 
 /**
@@ -56,7 +56,7 @@ async function updatePermission(
  * @param id 权限 ID
  */
 async function deletePermission(id: string) {
-  return requestClient.delete(`permissions/${id}/`);
+  return requestClient.delete(`permissions/${id}`);
 }
 
 /**
@@ -64,7 +64,7 @@ async function deletePermission(id: string) {
  */
 async function getContentTypeList(params?: Recordable<any>) {
   return requestClient.get<Array<SystemPermissionApi.SystemPermission>>(
-    'permissions/get_content_types/',
+    'permissions/get_content_types',
     {
       params,
     },

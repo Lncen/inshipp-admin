@@ -24,7 +24,7 @@ const [Form, formApi] = useVbenForm({
   showDefaultActions: false,
 });
 
-const permissions_ids = ref<SystemRoleApi.SystemRole[]>([]);
+const permission_ids = ref<SystemRoleApi.SystemRole[]>([]);
 const defaultCheckedKeys = ref<number[]>([]);
 const loadingPermissions = ref(false);
 
@@ -35,8 +35,8 @@ const [Drawer, drawerApi] = useVbenDrawer({
     if (!valid) return;
     const values = await formApi.getValues();
     // 过滤掉非数字的权限ID
-    if (values.permissions_ids && Array.isArray(values.permissions_ids)) {
-      values.permissions_ids = values.permissions_ids
+    if (values.permission_ids && Array.isArray(values.permission_ids)) {
+      values.permission_ids = values.permission_ids
         .filter(
           (id) =>
             typeof id === 'number' ||
@@ -68,7 +68,7 @@ const [Drawer, drawerApi] = useVbenDrawer({
         id.value = undefined;
       }
 
-      if (permissions_ids.value.length === 0) {
+      if (permission_ids.value.length === 0) {
         await loadPermissions();
       }
       // Wait for Vue to flush DOM updates (form fields mounted)
@@ -84,7 +84,7 @@ async function loadPermissions() {
   loadingPermissions.value = true;
   try {
     const res = await getPermList();
-    permissions_ids.value = res;
+    permission_ids.value = res;
   } finally {
     loadingPermissions.value = false;
   }
@@ -108,10 +108,10 @@ function getNodeClass(node: Recordable<any>) {
 <template>
   <Drawer :title="getDrawerTitle">
     <Form>
-      <template #permissions_ids="slotProps">
+      <template #permission_ids="slotProps">
         <Loading :spinning="loadingPermissions" class="w-full">
           <Tree
-            :tree-data="permissions_ids"
+            :tree-data="permission_ids"
             multiple
             bordered
             :default-expanded-level="2"

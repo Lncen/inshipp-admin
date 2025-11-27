@@ -1,0 +1,17 @@
+{
+  "finance": "财务",
+  "wallets": {
+    "wallet": "钱包",
+    "userId": "用户ID",
+    "username": "用户名",
+    "phone": "手机号",
+    "email": "邮箱",
+    "balance": "可用余额",
+    "frozenBalance": "冻结余额",
+    "status": "状态",
+    "createdAt": "创建时间",
+    "updatedAt": "更新时间",
+    "searchKeyword": "搜索",
+    "searchPlaceholder": "用户名/手机/邮箱"
+  }
+}

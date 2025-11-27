@@ -94,14 +94,14 @@ export namespace SystemMenuApi {
  * 获取菜单数据列表
  */
 async function getMenuList() {
-  return requestClient.get<Array<SystemMenuApi.SystemMenu>>('system/menu/');
+  return requestClient.get<Array<SystemMenuApi.SystemMenu>>('system/menu');
 }
 
 async function isMenuNameExists(
   name: string,
   id?: SystemMenuApi.SystemMenu['id'],
 ) {
-  return requestClient.get<boolean>('system/menu/is_name_exists/', {
+  return requestClient.get<boolean>('system/menu/is_name_exists', {
     params: { id, name },
   });
 }
@@ -110,7 +110,7 @@ async function isMenuPathExists(
   path: string,
   id?: SystemMenuApi.SystemMenu['id'],
 ) {
-  return requestClient.get<boolean>('system/menu/is_path_exists/', {
+  return requestClient.get<boolean>('system/menu/is_path_exists', {
     params: { id, path },
   });
 }
@@ -119,7 +119,7 @@ async function isMenuPathExists(
  * 获取权限树
  */
 async function GetpermTree() {
-  return requestClient.get<boolean>('system/menu/permtree/', {});
+  return requestClient.get<boolean>('system/menu/permtree', {});
 }
 
 /**
@@ -127,7 +127,7 @@ async function GetpermTree() {
  */
 async function getMenuParentList() {
   return requestClient.get<Array<SystemMenuApi.SystemMenu>>(
-    'system/menu/parent/',
+    'system/menu/parent',
   );
 }
 
@@ -138,7 +138,7 @@ async function getMenuParentList() {
 async function createMenu(
   data: Omit<SystemMenuApi.SystemMenu, 'children' | 'id'>,
 ) {
-  return requestClient.post('system/menu/', data);
+  return requestClient.post('system/menu', data);
 }
 
 /**
@@ -151,7 +151,7 @@ async function updateMenu(
   id: string,
   data: Omit<SystemMenuApi.SystemMenu, 'children' | 'id'>,
 ) {
-  return requestClient.put(`system/menu/${id}/`, data);
+  return requestClient.put(`system/menu/${id}`, data);
 }
 
 /**
@@ -159,7 +159,7 @@ async function updateMenu(
  * @param id 菜单 ID
  */
 async function deleteMenu(id: string) {
-  return requestClient.delete(`system/menu/${id}/`);
+  return requestClient.delete(`system/menu/${id}`);
 }
 
 export {
