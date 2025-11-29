@@ -8,91 +8,6 @@ import { ElTag } from 'element-plus';
 
 import { $t } from '#/locales';
 
-// 表单 Schema - 用于详情/编辑弹窗（只读展示，因为钱包通常不可编辑）
-export function useFormSchema(): VbenFormSchema[] {
-  return [
-    {
-      component: 'Input',
-      fieldName: 'user_id',
-      label: $t('finance.wallets.userId'),
-      componentProps: {
-        readonly: true,
-      },
-    },
-    {
-      component: 'Input',
-      fieldName: 'username',
-      label: $t('finance.wallets.username'),
-      componentProps: {
-        readonly: true,
-      },
-    },
-    {
-      component: 'Input',
-      fieldName: 'phone',
-      label: $t('finance.wallets.phone'),
-      componentProps: {
-        readonly: true,
-      },
-    },
-    {
-      component: 'Input',
-      fieldName: 'email',
-      label: $t('finance.wallets.email'),
-      componentProps: {
-        readonly: true,
-      },
-    },
-    {
-      component: 'Input',
-      fieldName: 'balance',
-      label: $t('finance.wallets.balance'),
-      componentProps: {
-        readonly: true,
-      },
-    },
-    {
-      component: 'Input',
-      fieldName: 'frozen_balance',
-      label: $t('finance.wallets.frozenBalance'),
-      componentProps: {
-        readonly: true,
-      },
-    },
-    {
-      component: 'RadioGroup',
-      fieldName: 'is_active',
-      label: $t('finance.wallets.status'),
-      componentProps: {
-        buttonStyle: 'solid',
-        optionType: 'button',
-        options: [
-          { label: $t('common.enabled'), value: true },
-          { label: $t('common.disabled'), value: false },
-        ],
-      },
-      defaultValue: true,
-      disabled: true, // 钱包状态通常由系统控制，不可手动改
-    },
-    {
-      component: 'Input',
-      fieldName: 'created_at',
-      label: $t('finance.wallets.createdAt'),
-      componentProps: {
-        readonly: true,
-      },
-    },
-    {
-      component: 'Input',
-      fieldName: 'updated_at',
-      label: $t('finance.wallets.updatedAt'),
-      componentProps: {
-        readonly: true,
-      },
-    },
-  ];
-}
-
 // 网格搜索表单 Schema - 用于顶部快速搜索
 export function useGridFormSchema(): VbenFormSchema[] {
   return [
@@ -207,7 +122,7 @@ export function useColumns<T = Api.Item>(
       headerAlign: 'center',
       showOverflow: false,
       title: $t('system.dept.operation'),
-      width: 200,
+      width: 110,
     },
   ];
 }

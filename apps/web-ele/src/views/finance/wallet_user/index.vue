@@ -1,8 +1,10 @@
 <script lang="ts" setup>
 import type { VxeTableGridOptions } from '#/adapter/vxe-table';
+import type { Api as Api__wallet } from '#/api/finance/wallet';
 import type { Api } from '#/api/finance/wallet_user';
 
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
+import { useRoute } from 'vue-router';
 
 import { Page } from '@vben/common-ui';
 import { Plus } from '@vben/icons';
@@ -11,22 +13,48 @@ import {
   ElButton,
   ElCard,
   ElDatePicker,
+  ElDescriptions,
+  ElDescriptionsItem,
   ElForm,
   ElFormItem,
   ElInput,
   ElOption,
   ElOptionGroup,
   ElSelect,
+  ElTag,
 } from 'element-plus';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { getList as getuser__wallet } from '#/api/finance/wallet';
 import { getList } from '#/api/finance/wallet_user';
 import { $t } from '#/locales';
 import AdminMoneyDialog from '#/modules/AdminMoneyDialog.vue';
 
 import { useColumns } from './data';
 
-// ==================== 搜索表单数据 ====================
+const route = useRoute();
+// ==================== 钱包详情 ====================
+const user_wallet_detail = ref<Partial<Api__wallet.Item>>({
+  user_id: '',
+  username: '',
+  balance: '',
+  frozen_balance: '',
+  is_active: false,
+  created_at: '',
+});
+const wallet_detail_Form = async () => {
+  const keyword = searchForm.value.username;
+  if (keyword) {
+    const res = await getuser__wallet({
+      keyword,
+      page: 1,
+      page_size: 10,
+    });
+    user_wallet_detail.value = res.results?.[0] ?? {};
+  }
+};
+
+// ==================== 表单数据 ====================
 const searchForm = ref({
   username: '',
   reference_id: '',
@@ -34,7 +62,6 @@ const searchForm = ref({
   type: '',
   timestamp: [] as string[], // [start, end]
 });
-
 // ==================== 重置表单 ====================
 const resetForm = () => {
   searchForm.value = {
@@ -44,6 +71,8 @@ const resetForm = () => {
     type: '',
     timestamp: [],
   };
+  user_wallet_detail.value = {};
+  gridApi.reload();
 };
 
 // ==================== 查询 ====================
@@ -63,6 +92,7 @@ const handleSearch = () => {
     params.end_date = searchForm.value.timestamp[1];
   }
   // 重点：把 params 传进去！
+
   gridApi.query(params);
 };
 
@@ -70,7 +100,8 @@ const handleSearch = () => {
 const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions: {
     columns: useColumns(),
-    height: 'auto',
+    // height: 'auto',
+    minHeight: 400, // 设置最低高度
     keepSource: true,
     proxyConfig: {
       ajax: {
@@ -89,8 +120,10 @@ const [Grid, gridApi] = useVbenVxeGrid({
             params.start_date = searchForm.value.timestamp[0];
             params.end_date = searchForm.value.timestamp[1];
           }
-
-          return await getList(params);
+          if (params.username) {
+            await wallet_detail_Form();
+            return await getList(params);
+          }
         },
       },
     },
@@ -123,19 +156,40 @@ const onRefresh = (username: string) => {
 
 const isComposing = ref(false);
 function onInput() {
-  // 如果正在中文输入（IME 组合中），不处理
-  if (isComposing.value) return;
+  // 搜索栏输入用户名时自动触发搜索
   // 英文输入或中文已确认，可以执行搜索等操作
-  handleSearch();
+  // 如果正在中文输入（IME 组合中），不处理
+  // if (isComposing.value) return;
+  // handleSearch();
 }
+// 校验规则：必填
+const rules = {
+  username: [
+    { required: true, message: '请输入用户名', trigger: 'blur' },
+    // 如果希望在 change 或 submit 时校验，可加 trigger: 'change'
+  ],
+};
+
+onMounted(() => {
+  // 获取传递的参数
+  const username = route.query.username;
+
+  searchForm.value.username = username as string;
+  handleSearch();
+});
 </script>
 
 <template>
   <Page auto-content-height>
     <!-- 自定义搜索栏（纯模板语法） -->
-    <div class="mb-2 rounded-lg border shadow-sm">
+    <div class="mb-2 rounded-lg shadow-sm">
       <ElCard>
-        <ElForm :inline="true" :model="searchForm" label-width="80px">
+        <ElForm
+          :inline="true"
+          :model="searchForm"
+          :rules="rules"
+          label-width="80px"
+        >
           <ElFormItem label="用户名">
             <ElInput
               v-model="searchForm.username"
@@ -250,15 +304,67 @@ function onInput() {
       </ElCard>
     </div>
 
+    <ElCard class="mb-2">
+      <ElDescriptions class="margn-top" title="详细" :column="3" border>
+        <template #extra>
+          <ElButton type="primary" @click="onCreate">
+            <Plus class="size-5" />
+            {{ $t('finance.wallets.Adjust') }}
+          </ElButton>
+        </template>
+        <ElDescriptionsItem>
+          <template #label>
+            <div class="cell-item">用户名</div>
+          </template>
+          {{ user_wallet_detail.username }}
+        </ElDescriptionsItem>
+
+        <ElDescriptionsItem>
+          <template #label>
+            <div class="cell-item">状态</div>
+          </template>
+          <div v-if="user_wallet_detail.username !== ''">
+            <ElTag
+              type="success"
+              effect="plain"
+              v-if="user_wallet_detail.is_active === true"
+            >
+              <strong>正常</strong>
+            </ElTag>
+            <ElTag
+              type="danger"
+              effect="plain"
+              v-else-if="user_wallet_detail.is_active === false"
+            >
+              <strong>异常</strong>
+            </ElTag>
+          </div>
+        </ElDescriptionsItem>
+
+        <ElDescriptionsItem>
+          <template #label>
+            <div class="cell-item">冻结额度</div>
+          </template>
+          {{ user_wallet_detail.frozen_balance }}
+        </ElDescriptionsItem>
+
+        <ElDescriptionsItem>
+          <template #label>
+            <div class="cell-item">余额</div>
+          </template>
+          {{ user_wallet_detail.balance }}
+        </ElDescriptionsItem>
+        <ElDescriptionsItem>
+          <template #label>
+            <div class="cell-item">创建时间</div>
+          </template>
+          {{ user_wallet_detail.created_at }}
+        </ElDescriptionsItem>
+      </ElDescriptions>
+    </ElCard>
+
     <!-- 表格 + 工具栏 -->
-    <Grid :table-title="$t('finance.wallets.wallet_detail')">
-      <template #toolbar-tools>
-        <ElButton type="primary" @click="onCreate">
-          <Plus class="size-5" />
-          {{ $t('finance.wallets.Adjust') }}
-        </ElButton>
-      </template>
-    </Grid>
+    <Grid :table-title="$t('finance.wallets.wallet_detail')" />
 
     <!-- 调账弹窗 -->
     <AdminMoneyDialog
@@ -273,5 +379,10 @@ function onInput() {
 <style scoped>
 :deep(.el-form-item__label) {
   font-weight: 500;
+}
+
+.cell-item {
+  display: flex;
+  align-items: center;
 }
 </style>

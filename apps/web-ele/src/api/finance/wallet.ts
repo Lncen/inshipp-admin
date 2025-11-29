@@ -5,8 +5,8 @@ import { requestClient } from '#/api/request';
 export namespace Api {
   // 单个钱包记录的类型
   export interface Item {
-    id: number;
-    user_id: number;
+    id: string;
+    user_id: string;
     username: string;
     phone: string;
     email: string;
@@ -50,23 +50,23 @@ async function getUserByUsername(params?: Api.ListQueryParams) {
   });
 }
 
-/**
- * 创建
- * @param data 角色数据
- */
-async function create(data: Recordable<any>) {
-  return requestClient.post('system/role', data);
-}
+// /**
+//  * 创建
+//  * @param data 角色数据
+//  */
+// async function create(data: Recordable<any>) {
+//   return requestClient.post('system/role', data);
+// }
 
-/**
- * 更新
- *
- * @param id 角色 ID
- * @param data 角色数据
- */
-async function update(id: string, data: Recordable<any>) {
-  return requestClient.put(`system/role/${id}`, data);
-}
+// /**
+//  * 更新
+//  *
+//  * @param id 角色 ID
+//  * @param data 角色数据
+//  */
+// async function update(id: string, data: Recordable<any>) {
+//   return requestClient.put(`system/role/${id}`, data);
+// }
 
 // /**
 //  * 删除
@@ -92,4 +92,4 @@ async function deposit(data: Recordable<any>) {
   return requestClient.post('admin/deposit', data);
 }
 
-export { create, deduct, deposit, getList, getUserByUsername, update };
+export { deduct, deposit, getList, getUserByUsername };

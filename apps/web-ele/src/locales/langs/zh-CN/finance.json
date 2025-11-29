@@ -1,7 +1,7 @@
 {
   "finance": "财务",
   "wallets": {
-    "wallet": "钱包",
+    "wallet": "钱包表",
     "userId": "用户ID",
     "username": "用户名",
     "phone": "手机号",
@@ -13,7 +13,7 @@
     "updatedAt": "更新时间",
     "searchKeyword": "搜索",
     "searchPlaceholder": "用户名/手机/邮箱",
-    "wallet_detail": "用户钱包详情",
+    "wallet_detail": "明细",
     "Adjust": "调整余额",
     "wallet_user": "用户钱包"
   }

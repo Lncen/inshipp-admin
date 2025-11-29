@@ -6,8 +6,9 @@ import type {
 import type { Api } from '#/api/finance/wallet';
 
 import { ref } from 'vue';
+import { useRouter } from 'vue-router';
 
-import { Page, useVbenDrawer } from '@vben/common-ui';
+import { Page } from '@vben/common-ui';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getList } from '#/api/finance/wallet';
@@ -15,14 +16,10 @@ import { $t } from '#/locales';
 import AdminMoneyDialog from '#/modules/AdminMoneyDialog.vue';
 
 import { useColumns, useGridFormSchema } from './data';
-import Form from './modules/form.vue';
 
+const router = useRouter();
 const username = ref<string>();
 const centerDialogVisible = ref(false);
-const [FormDrawer, formDrawerApi] = useVbenDrawer({
-  connectedComponent: Form,
-  destroyOnClose: true,
-});
 
 const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
@@ -73,7 +70,11 @@ function onActionClick(e: OnActionClickParams<Api.Item>) {
 }
 
 function onEdit(row: Api.Item) {
-  formDrawerApi.setData(row).open();
+  // formDrawerApi.setData(row).open();
+  router.push({
+    path: '/finance/wallet/user/',
+    query: { username: row.username },
+  });
 }
 
 function onEdit_balance(row: Api.Item) {
