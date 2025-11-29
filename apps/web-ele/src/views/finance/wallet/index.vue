@@ -12,9 +12,9 @@ import { Page, useVbenDrawer } from '@vben/common-ui';
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
 import { getList } from '#/api/finance/wallet';
 import { $t } from '#/locales';
+import AdminMoneyDialog from '#/modules/AdminMoneyDialog.vue';
 
 import { useColumns, useGridFormSchema } from './data';
-import AdminMoneyDialog from './modules/AdminMoneyDialog.vue';
 import Form from './modules/form.vue';
 
 const username = ref<string>();
@@ -39,7 +39,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
         query: async ({ page }, formValues) => {
           return await getList({
             page: page.currentPage,
-            pageSize: page.pageSize,
+            page_size: page.pageSize,
             ...formValues,
           });
         },

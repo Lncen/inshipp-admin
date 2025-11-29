@@ -205,21 +205,15 @@ async function initComponentAdapter() {
         visibleEvent: 'onVisibleChange',
       },
     ),
-    ApiTreeSelect: withDefaultPlaceholder(
-      {
-        ...ApiComponent,
-        name: 'ApiTreeSelect',
-      },
-      'select',
-      {
-        component: ElTreeSelect,
-        props: { label: 'label', children: 'children' },
-        nodeKey: 'value',
-        loadingSlot: 'loading',
-        optionsPropName: 'data',
-        visibleEvent: 'onVisibleChange',
-      },
-    ),
+    ApiTreeSelect: withDefaultPlaceholder(ApiComponent, 'select', {
+      component: ElTreeSelect,
+      props: { label: 'label', children: 'children' },
+      nodeKey: 'value',
+      optionsPropName: 'data',
+      modelPropName: 'modelValue',
+      visibleEvent: 'onVisibleChange',
+    }),
+
     AutoComplete: withDefaultPlaceholder(ElAutoComplete, 'input'),
     Checkbox: ElCheckbox,
     CheckboxGroup: (props, { attrs, slots }) => {

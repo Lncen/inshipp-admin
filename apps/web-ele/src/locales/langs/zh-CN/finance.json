@@ -12,6 +12,9 @@
     "createdAt": "创建时间",
     "updatedAt": "更新时间",
     "searchKeyword": "搜索",
-    "searchPlaceholder": "用户名/手机/邮箱"
+    "searchPlaceholder": "用户名/手机/邮箱",
+    "wallet_detail": "用户钱包详情",
+    "Adjust": "调整余额",
+    "wallet_user": "用户钱包"
   }
 }

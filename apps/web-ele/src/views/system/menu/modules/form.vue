@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import type { Recordable } from '@vben/types';
-
 import type { VbenFormSchema } from '#/adapter/form';
 
 import { computed, ref } from 'vue';
@@ -71,27 +69,19 @@ const schema: VbenFormSchema[] = [
   },
   {
     component: 'ApiTreeSelect',
+    fieldName: 'parent',
+    label: $t('system.menu.parent'),
     componentProps: {
       api: getMenuParentList,
       class: 'w-full',
-      filterTreeNode(input: string, node: Recordable<any>) {
-        if (!input || input.length === 0) {
-          return true;
-        }
-        const title: string = node.meta?.title ?? '';
-        if (!title) return false;
-        return title.includes(input) || $t(title).includes(input);
-      },
       getPopupContainer,
-      labelField: 'meta.title',
-      showSearch: true,
-      treeDefaultExpandAll: true,
+      labelField: 'name',
+      accordion: true,
+      defaultExpandedKeys: [null],
+      checkStrictly: true,
       valueField: 'id',
       childrenField: 'children',
     },
-    fieldName: 'pid',
-    label: $t('system.menu.parent'),
-    defaultValue: '', // 添加默认值
   },
   {
     component: 'ApiTreeSelect',
@@ -100,12 +90,12 @@ const schema: VbenFormSchema[] = [
       class: 'w-full',
       labelField: 'name',
       showSearch: true,
-      treeDefaultExpandAll: true,
+
       valueField: 'id',
       childrenField: 'children',
       placeholder: $t('请选择权限'),
     },
-    fieldName: 'perm',
+    fieldName: 'permission',
     label: $t('权限'),
     rules: z
       .any()
@@ -473,9 +463,9 @@ const [Drawer, drawerApi] = useVbenDrawer({
       }
       if (data) {
         formData.value = data;
-        // 确保 perm 字段不会是 undefined 或 null
-        if (formData.value.perm === null) {
-          formData.value.perm = '';
+        // 确保 permission 字段不会是 undefined 或 null
+        if (formData.value.permission === null) {
+          formData.value.permission = '';
         }
         formApi.setValues(formData.value);
         titleSuffix.value = formData.value.meta?.title
@@ -487,7 +477,8 @@ const [Drawer, drawerApi] = useVbenDrawer({
         formApi.setValues({
           type: 'menu',
           status: 1,
-          perm: '', // 明确设置为空字符串
+          permission: '', // 明确设置为空字符串
+          parent: null,
         });
         titleSuffix.value = '';
       }

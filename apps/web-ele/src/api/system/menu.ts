@@ -81,8 +81,8 @@ export namespace SystemMenuApi {
     name: string;
     /** 路由路径 */
     path: string;
-    /** 父级ID */
-    pid: string;
+    /** 父级 */
+    parent: string;
     /** 重定向 */
     redirect?: string;
     /** 菜单类型 */
@@ -126,9 +126,7 @@ async function GetpermTree() {
  * 表单里的上级菜单选项
  */
 async function getMenuParentList() {
-  return requestClient.get<Array<SystemMenuApi.SystemMenu>>(
-    'system/menu/parent',
-  );
+  return requestClient.get<Array<SystemMenuApi.SystemMenu>>('system/menu/tree');
 }
 
 /**

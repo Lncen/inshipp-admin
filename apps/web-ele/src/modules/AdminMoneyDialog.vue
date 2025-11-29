@@ -14,7 +14,7 @@ import {
 } from 'element-plus';
 
 import { deduct, deposit, getUserByUsername } from '#/api/finance/wallet';
-
+// props & emit
 const props = defineProps({
   visible: Boolean,
   username: { type: [Number, String], default: '' },
@@ -22,39 +22,50 @@ const props = defineProps({
 
 const emit = defineEmits(['update:visible', 'success']);
 
+// 如果项目没装 lodash，用这个手写防抖（推荐，直接复制）
+const debounce = (fn, delay = 500) => {
+  let timer = null;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), delay);
+  };
+};
+
 const dialog = reactive({ visible: false });
 const loading = ref(false);
+const loadingUserInfo = ref(false); // 新增：用户名查询 loading
 const formRef = ref(null);
 
-const form = reactive({
+const form = ref({
   username: '',
-  status: false,
-  amount: null, // 支持正负数
+  amount: null,
   remark: '',
 });
 
-const userInfo = ref({ username: '', balance: '0.00000000' });
+const userInfo = ref({
+  username: '',
+  balance: '0.0',
+  status: false,
+});
 
-// 实时判断操作类型
-const isDeposit = computed(() => form.amount > 0);
-// const isDeduct = computed(() => form.amount < 0);
-const displayAmount = computed(() => Math.abs(form.amount || 0).toFixed(8));
-// 关键：加上这几行！！
+// 计算属性保持不变
+const isDeposit = computed(() => Number(form.value.amount) > 0);
+const displayAmount = computed(() =>
+  Math.abs(form.value.amount || 0).toFixed(8),
+);
+
 const amountType = computed(() => {
-  const amountNum = Number(form.amount);
-  if (!form.amount || amountNum === 0) {
+  const n = Number(form.value.amount);
+  if (!form.value.amount || n === 0)
     return { text: '请输入金额', class: 'info' };
-  }
-  if (amountNum > 0) {
-    return { text: '将为用户充值', class: 'success' };
-  }
+  if (n > 0) return { text: '将为用户充值', class: 'success' };
+
   const balance = Number(userInfo.value.balance);
-  if (balance + amountNum < 0) {
-    return { text: '余额不足', class: 'warning' };
-  }
+  if (balance + n < 0) return { text: '余额不足', class: 'warning' };
   return { text: '将从用户扣款', class: 'danger' };
 });
 
+// 规则略微优化
 const rules = {
   username: [{ required: true, message: '请输入用户名', trigger: 'blur' }],
   amount: [
@@ -71,46 +82,56 @@ const rules = {
   ],
 };
 
-const fetchUserInfo = async () => {
+// 核心：防抖查询用户信息
+const fetchUserInfo = async (username) => {
+  if (!username?.trim()) {
+    userInfo.value = { username: '', balance: '0.00000000', status: false };
+    return;
+  }
+  loadingUserInfo.value = true;
   try {
-    const res = await getUserByUsername({ username: form.username });
+    const res = await getUserByUsername({ username: username.trim() });
     userInfo.value = {
       username: res.username || '未知用户',
-      balance: res.balance || '0.00',
-      status: res.status || false,
+      balance: res.balance ?? '0.00000000',
+      status: !!res.status,
     };
   } catch {
-    userInfo.value = { username: '用户不存在', balance: '-.--' };
+    userInfo.value = { username: '用户不存在', balance: '-.--', status: false };
+  } finally {
+    loadingUserInfo.value = false;
   }
 };
 
-// 关键：根据正负数自动选择调用哪个接口
+const debouncedFetchUserInfo = debounce(fetchUserInfo, 500);
+
+// 提交逻辑（不变，只是用了 displayAmount）
 const submitForm = async () => {
   if (!(await formRef.value?.validate())) return;
 
   loading.value = true;
   try {
     const payload = {
-      username: form.username,
-      amount: displayAmount.value, // 永远传正数！
-      remark: form.remark.trim(),
+      username: form.value.username.trim(),
+      amount: displayAmount.value,
+      remark: form.value.remark.trim(),
     };
 
     if (isDeposit.value) {
-      // 调用充值接口
       await deposit(payload);
-      ElMessage.success(`充值成功 +${displayAmount.value} 元`);
+      ElMessage.success(`充值成功 +${displayAmount.value}`);
     } else {
-      // 调用扣款接口
       await deduct(payload);
-      ElMessage.success(`扣款成功 -${displayAmount.value} 元`);
+      ElMessage.success(`扣款成功 -${displayAmount.value}`);
     }
 
-    emit('success');
+    // 提交成功后，触发 success 事件传递username参数
+    // 关闭弹窗
+    emit('success', form.value.username);
+    emit('update:visible', false);
     dialog.visible = false;
   } catch (error) {
-    const msg = error.response?.data?.message || '操作失败';
-    ElMessage.error(msg);
+    ElMessage.error(error?.response?.data?.message || '操作失败');
   } finally {
     loading.value = false;
   }
@@ -118,25 +139,48 @@ const submitForm = async () => {
 
 const handleClose = () => {
   formRef.value?.resetFields();
-  Object.assign(form, { username: '', amount: null, remark: '' });
-  userInfo.value = { username: '', balance: '0.00' };
+  form.value = { username: '', amount: null, remark: '' };
+  userInfo.value = { username: '', balance: '0.00000000', status: false };
 };
 
+/* ==================== 关键修复：两个 watch 完美配合 ==================== */
+
+// 1. 父组件控制 visible ←→ dialog.visible 双向同步
 watch(
   () => props.visible,
   (val) => {
-    dialog.visible = val;
-    if (val && props.username) {
-      form.username = String(props.username);
-      fetchUserInfo();
-    }
+    dialog.visible = val; // 这一行必须有！
   },
   { immediate: true },
 );
 
+// 2. dialog.visible 变化时通知父组件（v-model 语法糖）
 watch(
   () => dialog.visible,
-  (val) => emit('update:visible', val),
+  (val) => {
+    emit('update:visible', val);
+
+    // 弹窗打开时：填充 username 并查询用户信息
+    if (val) {
+      form.value.username = props.username ? String(props.username) : '';
+      if (form.value.username) {
+        debouncedFetchUserInfo(form.value.username);
+      } else {
+        userInfo.value = { username: '', balance: '0.00000000', status: false };
+      }
+    } else {
+      // 关闭时清理
+      handleClose();
+    }
+  },
+);
+
+// 3. 用户手动输入用户名时实时查询
+watch(
+  () => form.value.username,
+  (newVal) => {
+    debouncedFetchUserInfo(newVal);
+  },
 );
 </script>
 
@@ -162,18 +206,26 @@ watch(
           v-model.string="form.username"
           placeholder="请输入用户名"
           :disabled="loading"
-          clearabless
-        />
+          clearable
+        >
+          <template #suffix>
+            <el-icon v-if="loadingUserInfo"><Loading /></el-icon>
+          </template>
+        </ElInput>
       </ElFormItem>
 
       <!-- 用户信息展示 -->
-      <ElFormItem label="用户信息" v-if="userInfo.username">
+      <ElFormItem label="用户信息">
         <div>
-          <ElTag type="success">
+          <ElTag type="success" effect="plain" v-if="userInfo.username">
             当前余额: <strong>¥{{ userInfo.balance }}</strong>
+          </ElTag>
+          <ElTag type="danger" effect="plain" v-if="!userInfo.username">
+            <strong>请输入用户名</strong>
           </ElTag>
           <span style="margin-left: 12px; color: #656">
             <ElTag
+              v-show="userInfo.username ? true : false"
               :type="userInfo.status ? 'success' : 'danger'"
               effect="plain"
             >

@@ -48,7 +48,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       zoom: true,
     },
     treeConfig: {
-      parentField: 'pid',
+      parentField: 'parent',
       rowField: 'id',
       transform: false,
     },
@@ -88,7 +88,7 @@ function onCreate() {
   formDrawerApi.setData({}).open();
 }
 function onAppend(row: SystemMenuApi.SystemMenu) {
-  formDrawerApi.setData({ pid: row.id }).open();
+  formDrawerApi.setData({ parent: row.id }).open();
 }
 
 function onDelete(row: SystemMenuApi.SystemMenu) {
@@ -105,7 +105,7 @@ function onDelete(row: SystemMenuApi.SystemMenu) {
       onRefresh();
     })
     .catch(() => {
-      ElMessage.error($t('ui.actionMessage.deleteFailed', [row.name]));
+      // ElMessage.error($t('ui.actionMessage.deleteFailed', [row.name]));
     })
     .finally(() => {
       loadingInstance.close();

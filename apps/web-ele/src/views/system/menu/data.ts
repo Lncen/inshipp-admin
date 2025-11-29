@@ -83,7 +83,7 @@ export function useColumns(
       },
     },
     {
-      field: 'perm',
+      field: 'authName',
       title: $t('system.menu.authCode'),
       width: 200,
     },
