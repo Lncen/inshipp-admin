@@ -78,20 +78,13 @@ const resetForm = () => {
 // ==================== 查询 ====================
 const handleSearch = () => {
   const params: any = {
-    page: 1,
-    page_size: 10, // 默认改为10
     username: searchForm.value.username || undefined,
     reference_id: searchForm.value.reference_id || undefined,
     remark: searchForm.value.remark || undefined,
     type: searchForm.value.type || undefined,
+    created_at_min: searchForm.value.timestamp[0] || undefined,
+    created_at_max: searchForm.value.timestamp[1] || undefined,
   };
-
-  // 时间范围处理
-  if (searchForm.value.timestamp?.length === 2) {
-    params.start_date = searchForm.value.timestamp[0];
-    params.end_date = searchForm.value.timestamp[1];
-  }
-  // 重点：把 params 传进去！
 
   gridApi.query(params);
 };
@@ -103,23 +96,23 @@ const [Grid, gridApi] = useVbenVxeGrid({
     // height: 'auto',
     minHeight: 400, // 设置最低高度
     keepSource: true,
+    pagerConfig: {
+      pageSize: 10, // 设置默认每页显示10条
+    },
     proxyConfig: {
       ajax: {
         query: async ({ page }) => {
           const params: any = {
             page: page.currentPage,
-            page_size: 10, // 默认改为10
+            page_size: page.pageSize, // 默认改为10
             username: searchForm.value.username || undefined,
             reference_id: searchForm.value.reference_id || undefined,
             remark: searchForm.value.remark || undefined,
             type: searchForm.value.type || undefined,
+            created_at_min: searchForm.value.timestamp[0] || undefined,
+            created_at_max: searchForm.value.timestamp[1] || undefined,
           };
 
-          // 时间范围处理
-          if (searchForm.value.timestamp?.length === 2) {
-            params.start_date = searchForm.value.timestamp[0];
-            params.end_date = searchForm.value.timestamp[1];
-          }
           if (params.username) {
             await wallet_detail_Form();
             return await getList(params);
@@ -151,7 +144,6 @@ const onCreate = () => {
 const onRefresh = (username: string) => {
   searchForm.value.username = username;
   handleSearch();
-  resetForm();
 };
 
 const isComposing = ref(false);
@@ -343,14 +335,14 @@ onMounted(() => {
 
         <ElDescriptionsItem>
           <template #label>
-            <div class="cell-item">冻结额度</div>
+            <div class="cell-item">冻结余额</div>
           </template>
           {{ user_wallet_detail.frozen_balance }}
         </ElDescriptionsItem>
 
         <ElDescriptionsItem>
           <template #label>
-            <div class="cell-item">余额</div>
+            <div class="cell-item">可用余额</div>
           </template>
           {{ user_wallet_detail.balance }}
         </ElDescriptionsItem>
@@ -371,7 +363,6 @@ onMounted(() => {
       v-model:visible="centerDialogVisible"
       :username="searchForm.username"
       @success="(username: string) => onRefresh(username)"
-      @update:visible="(val: boolean) => !val && resetForm()"
     />
   </Page>
 </template>

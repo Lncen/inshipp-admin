@@ -3,27 +3,23 @@ import type {
   OnActionClickParams,
   VxeTableGridOptions,
 } from '#/adapter/vxe-table';
-import type { Api } from '#/api/finance/wallet';
+import type { Api } from '#/api/finance/log';
 
-import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
 import { Page } from '@vben/common-ui';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getList } from '#/api/finance/wallet';
+import { getList } from '#/api/finance/log';
 import { $t } from '#/locales';
-import AdminMoneyDialog from '#/modules/AdminMoneyDialog.vue';
 
 import { useColumns, useGridFormSchema } from './data';
 
 const router = useRouter();
-const username = ref<string>();
-const centerDialogVisible = ref(false);
 
 const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
-    fieldMappingTime: [['createTime', ['startTime', 'endTime']]],
+    fieldMappingTime: [['timestamp', ['created_at_min', 'created_at_max']]],
     schema: useGridFormSchema(),
     submitOnChange: true,
   },
@@ -31,6 +27,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
     columns: useColumns(onActionClick),
     height: 'auto',
     keepSource: true,
+    pagerConfig: {
+      pageSize: 10, // 设置默认每页显示10条
+    },
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
@@ -58,12 +57,8 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 function onActionClick(e: OnActionClickParams<Api.Item>) {
   switch (e.code) {
-    case 'edit': {
+    case 'detail': {
       onEdit(e.row);
-      break;
-    }
-    case 'edit_balance': {
-      onEdit_balance(e.row);
       break;
     }
   }
@@ -72,31 +67,18 @@ function onActionClick(e: OnActionClickParams<Api.Item>) {
 function onEdit(row: Api.Item) {
   // formDrawerApi.setData(row).open();
   router.replace({
-    path: '/wallet/user',
+    path: '/finance/wallet/user/',
     query: { username: row.username },
   });
 }
 
-function onEdit_balance(row: Api.Item) {
-  centerDialogVisible.value = true;
-  username.value = row.username;
-}
 function onRefresh() {
   gridApi.query();
 }
-
-// function onCreate() {
-//   formDrawerApi.setData({}).open();
-// }
 </script>
 <template>
   <Page auto-content-height>
     <FormDrawer @success="onRefresh" />
     <Grid :table-title="$t('finance.wallets.wallet')" />
-    <AdminMoneyDialog
-      v-model:visible="centerDialogVisible"
-      :username="username"
-      @success="onRefresh"
-    />
   </Page>
 </template>

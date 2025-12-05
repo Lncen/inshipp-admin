@@ -16,19 +16,6 @@ export function useColumns(): VxeTableGridOptions['columns'] {
       field: 'username',
       title: '用户名',
       width: 140,
-      slots: {
-        default: ({ row }: { row: Api.Item }) => {
-          return h(
-            'div',
-            { class: 'flex items-center gap-2' },
-            [
-              h('span', row.username),
-              row.phone &&
-                h(ElTag, { size: 'small', type: 'info' }, () => row.phone),
-            ].filter(Boolean),
-          );
-        },
-      },
     },
     {
       field: 'balance_after',

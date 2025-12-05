@@ -30,7 +30,12 @@
     "viewFail": "查看用户失败",
     "addFail": "添加用户失败",
     "editFail": "编辑用户失败",
-    "is_staff": "管理员"
+    "is_staff": "管理员",
+    "is_active": "账号状态",
+    "balance": "余额",
+    "order_count": "订单数",
+    "level": "等级",
+    "remark": "备注"
   },
   "title": "用户管理"
 }

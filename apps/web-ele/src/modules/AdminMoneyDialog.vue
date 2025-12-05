@@ -45,7 +45,7 @@ const form = ref({
 const userInfo = ref({
   username: '',
   balance: '0.0',
-  status: false,
+  status: '',
 });
 
 // 计算属性保持不变
@@ -85,7 +85,7 @@ const rules = {
 // 核心：防抖查询用户信息
 const fetchUserInfo = async (username) => {
   if (!username?.trim()) {
-    userInfo.value = { username: '', balance: '0.00000000', status: false };
+    userInfo.value = { username: '', balance: '0.00', status: '' };
     return;
   }
   loadingUserInfo.value = true;
@@ -93,11 +93,15 @@ const fetchUserInfo = async (username) => {
     const res = await getUserByUsername({ username: username.trim() });
     userInfo.value = {
       username: res.username || '未知用户',
-      balance: res.balance ?? '0.00000000',
-      status: !!res.status,
+      balance: res.balance ?? '0.00',
+      status: res.status,
     };
   } catch {
-    userInfo.value = { username: '用户不存在', balance: '-.--', status: false };
+    userInfo.value = {
+      username: '异常用户',
+      balance: '-.--',
+      status: '异常',
+    };
   } finally {
     loadingUserInfo.value = false;
   }
@@ -140,7 +144,7 @@ const submitForm = async () => {
 const handleClose = () => {
   formRef.value?.resetFields();
   form.value = { username: '', amount: null, remark: '' };
-  userInfo.value = { username: '', balance: '0.00000000', status: false };
+  userInfo.value = { username: '', balance: '0.00', status: '' };
 };
 
 /* ==================== 关键修复：两个 watch 完美配合 ==================== */
@@ -166,7 +170,7 @@ watch(
       if (form.value.username) {
         debouncedFetchUserInfo(form.value.username);
       } else {
-        userInfo.value = { username: '', balance: '0.00000000', status: false };
+        userInfo.value = { username: '', balance: '0.00', status: '异常' };
       }
     } else {
       // 关闭时清理
@@ -223,13 +227,15 @@ watch(
           <ElTag type="danger" effect="plain" v-if="!userInfo.username">
             <strong>请输入用户名</strong>
           </ElTag>
-          <span style="margin-left: 12px; color: #656">
+          <span
+            style="margin-left: 12px; color: #656"
+            v-show="userInfo.username ? true : false"
+          >
             <ElTag
-              v-show="userInfo.username ? true : false"
-              :type="userInfo.status ? 'success' : 'danger'"
+              :type="userInfo.status === '正常' ? 'success' : 'danger'"
               effect="plain"
             >
-              账户状态: <strong>{{ userInfo.status ? '正常' : '异常' }}</strong>
+              账户状态: <strong>{{ userInfo.status }} </strong>
             </ElTag>
           </span>
         </div>
