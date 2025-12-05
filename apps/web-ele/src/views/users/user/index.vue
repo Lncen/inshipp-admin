@@ -276,6 +276,11 @@ function onEditBalance() {
 }
 
 function onCreate() {
+  userPasswordForm.value.id = '';
+  userPasswordForm.value.username = '';
+  userPasswordForm.value.password = '';
+  userPasswordForm.value.confirm_password = '';
+
   setPasswordDialogVisible.value = true;
 }
 // 创建用户 和 更新密码
@@ -342,7 +347,7 @@ function handleCreateAndSetpassword() {
       const action = userPasswordForm.value.id ? '更新' : '创建';
       ElMessage.success(`${action}成功`);
       onRefresh();
-      handleClose();
+      handlePasswordClose();
     })
     .catch((error) => {
       console.error(
@@ -358,7 +363,18 @@ function handleCreateAndSetpassword() {
     });
 }
 
-// 关闭弹窗
+// 关闭小弹窗
+function handlePasswordClose() {
+  setPasswordDialogVisible.value = false;
+  FormRef.value?.resetFields();
+  userPasswordForm.value = {
+    id: '',
+    username: '',
+    password: '',
+    confirm_password: '',
+  };
+}
+// 关闭大弹窗
 function handleClose() {
   dialogVisible.value = false;
   setPasswordDialogVisible.value = false;
@@ -656,7 +672,11 @@ onMounted(() => {
       </template>
     </ElDialog>
 
-    <ElDialog v-model="setPasswordDialogVisible" title="重置密码">
+    <ElDialog
+      @close="handlePasswordClose"
+      v-model="setPasswordDialogVisible"
+      :title="userPasswordForm.id ? '修改密码' : '新建用户'"
+    >
       <template #default>
         <ElForm
           ref="FormRef"
@@ -664,7 +684,7 @@ onMounted(() => {
           :model="userPasswordForm"
           class="pt-4"
         >
-          <ElFormItem label="id" prop="id">
+          <ElFormItem label="id" prop="id" v-show="false">
             <ElInput v-model="readonlyUserInfo.id" placeholder="id" />
           </ElFormItem>
 
@@ -694,7 +714,7 @@ onMounted(() => {
 
       <template #footer>
         <div class="dialog-footer">
-          <ElButton @click="handleClose">取消</ElButton>
+          <ElButton @click="handlePasswordClose">取消</ElButton>
           <ElButton
             type="primary"
             :loading="saveLoading"
