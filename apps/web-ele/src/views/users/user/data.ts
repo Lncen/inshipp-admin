@@ -51,12 +51,131 @@ export function usePasswordFormSchema(): VbenFormSchema[] {
   ];
 }
 
-export function useGridFormSchema(): VbenFormSchema[] {
+export function useGridFormSchema(
+  levelOptions: {
+    id: number;
+    name: string;
+  }[],
+  groupOptions: {
+    id: number;
+    name: string;
+  }[],
+): VbenFormSchema[] {
   return [
     {
       component: 'Input',
-      fieldName: 'name',
-      label: $t('system.role.roleName'),
+      fieldName: 'username',
+      label: $t('users.user.username'),
+    },
+    {
+      component: 'Input',
+      fieldName: 'nickname',
+      label: $t('users.user.nickname'),
+    },
+    {
+      component: 'Input',
+      fieldName: 'email',
+      label: $t('users.user.email'),
+    },
+    {
+      component: 'Input',
+      fieldName: 'phone',
+      label: $t('users.user.phone'),
+    },
+    {
+      component: 'Select',
+      fieldName: 'is_active',
+      label: $t('users.user.status'),
+      componentProps: {
+        placeholder: '请选择账户状态',
+        options: [
+          { label: '启用', value: true },
+          { label: '禁用', value: false },
+        ],
+      },
+    },
+    {
+      component: 'Select',
+      fieldName: 'gender',
+      label: $t('users.user.gender'),
+      componentProps: {
+        placeholder: '请选择性别',
+        options: [
+          { label: '保密', value: 'secret' },
+          { label: '女', value: 'female' },
+          { label: '男', value: 'male' },
+        ],
+      },
+    },
+    {
+      component: 'Select',
+      fieldName: 'is_deleted',
+      label: $t('users.user.is_deleted'),
+      componentProps: {
+        placeholder: '请选择账户状态',
+        options: [
+          { label: '是', value: true },
+          { label: '否', value: false },
+        ],
+      },
+    },
+    {
+      component: 'Select',
+      fieldName: 'groups', // 对应用户表的 level 字段（整数）
+      label: $t('users.user.group'),
+      componentProps: {
+        clearable: true,
+        placeholder: groupOptions.length === 0 ? '加载中...' : '请选择用户角色',
+        loading: groupOptions.length === 0, // 数据未加载时显示 loading
+        options: groupOptions.map((item) => ({
+          label: item.name,
+          value: item.id,
+        })),
+      },
+    },
+    {
+      component: 'Select',
+      fieldName: 'level', // 对应用户表的 level 字段（整数）
+      label: $t('users.user.level'),
+      componentProps: {
+        clearable: true,
+        placeholder: levelOptions.length === 0 ? '加载中...' : '请选择用户等级',
+        loading: levelOptions.length === 0, // 数据未加载时显示 loading
+        options: levelOptions.map((item) => ({
+          label: item.name,
+          value: item.id, // 后端查询用 level=1,2,3...
+        })),
+      },
+    },
+    {
+      component: 'Select',
+      fieldName: 'source',
+      label: $t('users.user.source'),
+      componentProps: {
+        placeholder: '请选择注册来源',
+        options: [
+          { label: '自然流量', value: 'organic' },
+          { label: 'iOS App', value: 'ios' },
+          { label: 'Android App', value: 'android' },
+          { label: 'H5 页面', value: 'h5' },
+          { label: '小程序', value: 'mini_program' },
+          { label: '微信公众号', value: 'wechat_mp' },
+          { label: '线下活动', value: 'offline' },
+          { label: '用户邀请', value: 'invited' },
+        ],
+      },
+    },
+    {
+      component: 'DatePicker',
+      fieldName: 'timestamp',
+      label: $t('users.user.createdAt'),
+      componentProps: {
+        type: 'datetimerange',
+        startPlaceholder: '创建时间',
+        endPlaceholder: '时间范围',
+        format: 'YYYY-MM-DD HH:mm:ss',
+        valueFormat: 'YYYY-MM-DD HH:mm:ss',
+      },
     },
   ];
 }
@@ -69,8 +188,8 @@ export function useColumns<T = Api.Item>(
     {
       field: 'id',
       title: $t('users.user.id'),
-      width: 90,
-      fixed: 'left',
+      width: 70,
+      // fixed: 'left',
       align: 'center',
     },
 
@@ -145,15 +264,12 @@ export function useColumns<T = Api.Item>(
       align: 'center',
       slots: {
         default: ({ row }: { row: Api.Item }) => {
-          const level = row.level || 1;
-          let type: 'danger' | 'success' | 'warning' = 'success';
-          if (level >= 50) type = 'danger';
-          else if (level >= 10) type = 'warning';
-
+          const level = row.level;
+          const type: 'danger' | 'success' | 'warning' = 'success';
           return h(
             ElTag,
             { type, size: 'small', effect: 'plain' },
-            () => `Lv.${level}`,
+            () => level,
           );
         },
       },
@@ -214,6 +330,7 @@ export function useColumns<T = Api.Item>(
       field: 'remark',
       title: $t('users.user.remark'),
       showOverflow: 'tooltip',
+      minWidth: 200,
     },
     {
       align: 'center',

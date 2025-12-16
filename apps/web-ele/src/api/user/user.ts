@@ -23,14 +23,15 @@ export namespace Api {
     deleted_at: null | string;
     balance: string;
     nickname?: string;
-    phone?: string;
+    phone: string;
     gender?: 'female' | 'male' | 'secret';
     bio?: string;
-    email?: string;
+    email: string;
     display_avatar?: string;
     remark?: string;
     is_active?: boolean;
     groups?: number[];
+    status?: '在线' | '离线';
   }
 
   // 编辑字段
@@ -45,6 +46,7 @@ export namespace Api {
     remark?: string;
     is_active?: boolean;
     groups?: number[];
+    level?: string;
   }
 
   // 用户列表查询参数
@@ -85,6 +87,13 @@ export namespace Api {
  */
 async function getGroupsList() {
   return requestClient.get('role/all');
+}
+
+/**
+ * 获取等级列表数据
+ */
+async function getLevelsList() {
+  return requestClient.get('member-levels');
 }
 
 /**
@@ -151,6 +160,7 @@ export {
   drestore,
   getGroupsList,
   getInfo,
+  getLevelsList,
   getList,
   setPassword,
   update,

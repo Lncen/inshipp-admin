@@ -48,7 +48,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
     toolbarConfig: {
       custom: true, // 启用自定义列功能，允许用户自定义显示/隐藏表格列
-      export: false, // 禁用导出功能
+      export: true, // 禁用导出功能
       refresh: true, // 禁用刷新功能
       search: true, // 禁用搜索功能
       zoom: true, // 禁用缩放功能

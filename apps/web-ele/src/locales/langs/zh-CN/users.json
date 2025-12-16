@@ -7,7 +7,9 @@
     "bio": "简介",
     "group": "角色",
     "email": "邮箱",
+    "phone": "手机号",
     "avatar": "头像",
+    "gender": "性别",
     "password": "密码",
     "confirmPassword": "确认密码",
     "status": "状态",
@@ -35,7 +37,32 @@
     "balance": "余额",
     "order_count": "订单数",
     "level": "等级",
-    "remark": "备注"
+    "remark": "备注",
+    "source": "用户来源",
+    "is_deleted": "是否软删除"
   },
+  "memberLevel": {
+    "pageTitle": "会员等级管理",
+    "pageDesc": "管理系统中的会员等级、积分要求及折扣规则",
+
+    "id": "ID",
+    "levelId": "等级序号",
+    "levelName": "等级名称",
+    "requiredScore": "所需积分",
+    "discountRate": "折扣率",
+    "status": "状态",
+    "description": "描述",
+    "createdAt": "创建时间",
+    "updatedAt": "更新时间",
+
+    "addLevel": "新增等级",
+    "editLevel": "编辑等级",
+    "deleteLevel": "删除等级",
+    "deleteConfirm": "确定要删除该会员等级吗？",
+
+    "discountTip": "例如：0.95 表示 9.5 折，1 表示无折扣",
+    "levelIdTip": "等级序号越小，等级越高（用于排序显示）"
+  },
+
   "title": "用户管理"
 }
