@@ -1,0 +1,11 @@
+{
+  "id": "编号",
+  "name": "名称",
+  "description": "描述",
+  "price": "价格",
+  "status": "状态",
+  "title": "产品管理",
+  "icon": "图标",
+  "category": "分类",
+  "path": "路径"
+}

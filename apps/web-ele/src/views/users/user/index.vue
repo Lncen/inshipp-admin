@@ -35,6 +35,7 @@ import {
   drestore,
   getGroupsList,
   getInfo,
+  getLevelsList,
   getList,
   setPassword,
   update,
@@ -57,6 +58,7 @@ const editForm = ref<Api.EditableFields>({
   is_active: true,
   groups: [] as number[],
   remark: '',
+  level: '',
 });
 
 const readonlyUserInfo = ref<Api.Item>({
@@ -77,6 +79,8 @@ const readonlyUserInfo = ref<Api.Item>({
   is_deleted: false,
   deleted_at: '',
   balance: '0.00',
+  phone: '',
+  email: '',
 });
 
 const editFormRef = ref<any>();
@@ -84,11 +88,12 @@ const saveLoading = ref(false);
 
 // 用户组选项（从 getGroupsList 接口获取）
 const groupOptions = ref<{ id: number; name: string }[]>([]);
+const levelOptions = ref<{ id: number; name: string }[]>([]);
 
 const [Grid, gridApi] = useVbenVxeGrid({
   formOptions: {
-    fieldMappingTime: [['createTime', ['startTime', 'endTime']]],
-    schema: useGridFormSchema(),
+    fieldMappingTime: [['timestamp', ['created_at_min', 'created_at_max']]],
+    schema: useGridFormSchema([], []),
     submitOnChange: true,
   },
   gridOptions: {
@@ -112,7 +117,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
     toolbarConfig: {
       custom: true, // 启用自定义列功能，允许用户自定义显示/隐藏表格列
-      export: false, // 禁用导出功能
+      export: true, // 禁用导出功能
       refresh: true, // 禁用刷新功能
       search: true, // 禁用搜索功能
       zoom: true, // 禁用缩放功能
@@ -121,10 +126,19 @@ const [Grid, gridApi] = useVbenVxeGrid({
 });
 
 // 获取用户组列表（页面初始化时调用一次就行）
-const loadGroupOptions = async () => {
+const loadOptions = async () => {
   try {
-    const res = await getGroupsList(); // 你之前说这个接口已经有了
-    groupOptions.value = res;
+    const response_groups = await getGroupsList();
+    groupOptions.value = response_groups.results;
+
+    const response_levels = await getLevelsList();
+    levelOptions.value = response_levels.results;
+
+    gridApi.setState({
+      formOptions: {
+        schema: useGridFormSchema(levelOptions.value, groupOptions.value),
+      },
+    });
   } catch (error) {
     console.error('加载用户组失败', error);
   }
@@ -177,7 +191,7 @@ function onDelete(row: Api.Item) {
       // 5. 删除失败：关闭 loading + 提示错误
       loading.close();
       // ElMessage.error($t('ui.actionMessage.deleteFailed', [row.name]));
-      console.error('Delete role failed:', error);
+      console.error('删除失败:', error);
     })
     .finally(() => {
       // 4. 刷新列表
@@ -250,6 +264,8 @@ async function onEdit(row: Api.Item) {
     is_deleted: res.is_deleted,
     deleted_at: res.deleted_at,
     balance: res.balance,
+    email: res.email,
+    phone: res.phone,
   };
 
   // 设置可编辑表单数据
@@ -260,6 +276,7 @@ async function onEdit(row: Api.Item) {
     is_active: res.is_active,
     groups: res.groups,
     remark: res.remark,
+    level: res.level,
   };
   dialogVisible.value = true;
 }
@@ -290,6 +307,8 @@ const setPasswordDialogVisible = ref(false);
 const userPasswordForm = ref({
   id: '',
   username: '',
+  email: '',
+  phone: '',
   password: '',
   confirm_password: '',
 });
@@ -298,6 +317,8 @@ function onResetPassword() {
   // 1. 显示全局 loading（Element Plus 的加载遮罩）
   userPasswordForm.value.id = readonlyUserInfo.value.id;
   userPasswordForm.value.username = readonlyUserInfo.value.username;
+  userPasswordForm.value.email = readonlyUserInfo.value.email;
+  userPasswordForm.value.phone = readonlyUserInfo.value.phone;
   setPasswordDialogVisible.value = true;
   // handleClose(); // 关闭表单
 }
@@ -347,7 +368,7 @@ function handleCreateAndSetpassword() {
       const action = userPasswordForm.value.id ? '更新' : '创建';
       ElMessage.success(`${action}成功`);
       onRefresh();
-      handlePasswordClose();
+      handleClose();
     })
     .catch((error) => {
       console.error(
@@ -371,36 +392,31 @@ function handlePasswordClose() {
     id: '',
     username: '',
     password: '',
+    email: '',
+    phone: '',
     confirm_password: '',
   };
 }
 // 关闭大弹窗
 function handleClose() {
   dialogVisible.value = false;
-  setPasswordDialogVisible.value = false;
   editFormRef.value?.resetFields();
-  FormRef.value?.resetFields();
   currentRow.value = null;
-  userPasswordForm.value = {
-    id: '',
-    username: '',
-    password: '',
-    confirm_password: '',
-  };
+  handlePasswordClose();
 }
 
 // 页面加载时获取一次用户组
 onMounted(() => {
-  loadGroupOptions();
+  loadOptions();
 });
 </script>
 <template>
   <Page auto-content-height>
-    <Grid :table-title="$t('system.role.list')">
+    <Grid :table-title="$t('users.user.list')">
       <template #toolbar-tools>
         <ElButton type="primary" @click="onCreate">
           <Plus class="size-5" />
-          {{ $t('ui.actionTitle.create', [$t('system.role.name')]) }}
+          {{ $t('ui.actionTitle.create', [$t('users.user.title')]) }}
         </ElButton>
       </template>
     </Grid>
@@ -627,12 +643,6 @@ onMounted(() => {
           </ElCol>
 
           <ElCol :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
-            <ElFormItem label="是否激活" prop="is_active">
-              <ElSwitch v-model="editForm.is_active" />
-            </ElFormItem>
-          </ElCol>
-
-          <ElCol :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
             <ElFormItem label="用户组" prop="groups">
               <ElSelect
                 v-model="editForm.groups"
@@ -646,6 +656,24 @@ onMounted(() => {
                   :value="item.id"
                 />
               </ElSelect>
+            </ElFormItem>
+          </ElCol>
+          <ElCol :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
+            <ElFormItem label="等级" prop="level">
+              <ElSelect v-model="editForm.level" placeholder="请选择">
+                <ElOption
+                  v-for="item in levelOptions"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                />
+              </ElSelect>
+            </ElFormItem>
+          </ElCol>
+
+          <ElCol :xs="24" :sm="12" :md="12" :lg="12" :xl="12">
+            <ElFormItem label="账号状态" prop="is_active">
+              <ElSwitch v-model="editForm.is_active" />
             </ElFormItem>
           </ElCol>
 
@@ -692,7 +720,23 @@ onMounted(() => {
             <ElInput
               v-model="userPasswordForm.username"
               placeholder="请输入用户名"
-              :disabled="!!readonlyUserInfo.id"
+              :disabled="!!userPasswordForm.id"
+            />
+          </ElFormItem>
+
+          <ElFormItem label="邮箱" prop="email">
+            <ElInput
+              v-model="userPasswordForm.email"
+              placeholder="选填 - 也可以用邮箱登录"
+              :disabled="!!userPasswordForm.id"
+            />
+          </ElFormItem>
+
+          <ElFormItem label="手机" prop="phone">
+            <ElInput
+              v-model="userPasswordForm.phone"
+              placeholder="选填 - 也可以用手机登录"
+              :disabled="!!userPasswordForm.id"
             />
           </ElFormItem>
 
