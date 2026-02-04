@@ -1,11 +1,21 @@
 {
   "id": "编号",
+  "product": "商品",
   "name": "名称",
   "description": "描述",
-  "price": "价格",
+  "price": "售价",
+  "cost_price": "进货价",
+  "profit": "利润",
   "status": "状态",
-  "title": "产品管理",
+  "title": "商品管理",
   "icon": "图标",
   "category": "分类",
-  "path": "路径"
+  "path": "路径",
+  "supplier_name": "渠道",
+  "updated_at": "更新时间",
+  "stock": "库存",
+  "is_refund_allowed": "允许退货",
+  "min_quantity": "最小起购数量",
+  "is_card_product": "是否卡密",
+  "digital": "虚拟商品"
 }

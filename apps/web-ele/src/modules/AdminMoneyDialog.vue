@@ -22,7 +22,7 @@ const props = defineProps({
 
 const emit = defineEmits(['update:visible', 'success']);
 
-// 如果项目没装 lodash，用这个手写防抖（推荐，直接复制）
+// 防抖
 const debounce = (fn, delay = 500) => {
   let timer = null;
   return (...args) => {

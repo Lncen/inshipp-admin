@@ -119,7 +119,7 @@ async function isMenuPathExists(
  * 获取权限树
  */
 async function GetpermTree() {
-  return requestClient.get<boolean>('system/menu/permtree', {});
+  return requestClient.get<boolean>('perm-tree/', {});
 }
 
 /**

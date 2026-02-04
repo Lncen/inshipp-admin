@@ -23,6 +23,7 @@ const [FormDrawer, formDrawerApi] = useVbenDrawer({
 });
 
 const [Grid, gridApi] = useVbenVxeGrid({
+  showSearchForm: false,
   formOptions: {
     schema: useGridFormSchema(),
     submitOnChange: true,

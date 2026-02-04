@@ -93,8 +93,7 @@ const handleSearch = () => {
 const [Grid, gridApi] = useVbenVxeGrid({
   gridOptions: {
     columns: useColumns(),
-    // height: 'auto',
-    minHeight: 400, // 设置最低高度
+    height: '75%',
     keepSource: true,
     pagerConfig: {
       pageSize: 10, // 设置默认每页显示10条

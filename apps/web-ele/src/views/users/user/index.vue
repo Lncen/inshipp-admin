@@ -100,6 +100,9 @@ const [Grid, gridApi] = useVbenVxeGrid({
     columns: useColumns(onActionClick),
     height: 'auto',
     keepSource: true,
+    pagerConfig: {
+      pageSize: 10, // 设置默认每页显示10条
+    },
     proxyConfig: {
       ajax: {
         query: async ({ page }, formValues) => {
@@ -410,6 +413,7 @@ onMounted(() => {
   loadOptions();
 });
 </script>
+
 <template>
   <Page auto-content-height>
     <Grid :table-title="$t('users.user.list')">
@@ -771,6 +775,7 @@ onMounted(() => {
     </ElDialog>
   </Page>
 </template>
+
 <style scoped>
 /* 小屏幕：宽度 100%（实际是 100% - 边距） */
 @media (max-width: 768px) {
