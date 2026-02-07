@@ -3,7 +3,7 @@ import type { ComponentSize } from 'element-plus';
 
 import type { Api } from '#/api/asset/asset';
 
-import { reactive, ref, watch } from 'vue';
+import { onMounted, reactive, ref, watch } from 'vue';
 
 import { Page } from '@vben/common-ui';
 import { IconifyIcon } from '@vben/icons';
@@ -14,9 +14,11 @@ import {
   ElMessage,
   ElMessageBox,
   ElPagination,
+  ElRadioButton,
+  ElRadioGroup,
 } from 'element-plus';
 
-import { getList, remove } from '#/api/asset/asset';
+import { getList, remove, updateAssetSecurityStatus } from '#/api/asset/asset';
 import UploadModal from '#/modules/UploadModal.vue';
 
 const loading = ref(false);
@@ -117,7 +119,6 @@ const hideOverlay = () => {
 };
 
 // 删除处理
-// 删除处理
 const handleDelete = async (image: Api.Item) => {
   try {
     await ElMessageBox.confirm(
@@ -142,6 +143,20 @@ const handleDelete = async (image: Api.Item) => {
       console.error('删除失败:', error);
       ElMessage.error('删除失败');
     }
+  }
+};
+
+// 审核状态
+const handleStatusChange = async (ids: string, newStatus: string) => {
+  try {
+    await updateAssetSecurityStatus({ id: ids, security_status: newStatus });
+    ElMessage.success('更新成功');
+  } catch (error) {
+    console.error('更新失败:', error);
+    ElMessage.error('更新失败');
+  } finally {
+    // 刷新列表
+    getData();
   }
 };
 
@@ -171,10 +186,15 @@ watch(
   },
   { deep: true },
 );
+
+onMounted(() => {
+  getData();
+});
 </script>
 
 <template>
   <Page auto-content-height>
+    <UploadModal ref="uploadDialog" @success="onUploadSuccess" />
     <ElCard class="mb-3">
       <div class="flex items-center gap-2">
         <!-- 标题 "资源:" 改为蓝色 -->
@@ -230,13 +250,9 @@ watch(
       </div>
     </ElCard>
 
-    <UploadModal ref="uploadDialog" @success="onUploadSuccess" />
-
     <ElCard>
       <ElButton @click="openUpload" class="mb-2">上传文件</ElButton>
-      <ElButton @click="getData" class="mb-2">
-        <IconifyIcon icon="ic:baseline-loop" width="20" height="20" />
-      </ElButton>
+
       <div class="album-container">
         <!-- 图片网格 -->
         <div class="album-grid">
@@ -269,6 +285,20 @@ watch(
 
               <!-- 基本信息（左下角） -->
               <div class="info-panel">
+                <div class="mb-2">
+                  <ElRadioGroup
+                    v-model="image.security_status"
+                    size="small"
+                    @change="
+                      (value) => handleStatusChange(image.id, value as string)
+                    "
+                  >
+                    <ElRadioButton label="待审核" value="pending" />
+                    <ElRadioButton label="审核通过" value="approved" />
+                    <ElRadioButton label="审核拒绝" value="rejected" />
+                  </ElRadioGroup>
+                </div>
+
                 <div class="info-line">
                   <strong>文件名:</strong> {{ image.filename }}
                 </div>

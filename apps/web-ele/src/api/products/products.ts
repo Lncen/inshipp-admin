@@ -125,4 +125,26 @@ async function getDetail(id: string) {
   return requestClient.get<Array<Api.ProductItem>>(`products/${id}`);
 }
 
-export { create, getCategories, getDetail, getList, remove, update };
+/**
+ * 商品主图添加引用
+ */
+async function assetCreateReference(data: Recordable<any>) {
+  return requestClient.post('products', data);
+}
+/**
+ * 商品主图删除引用
+ */
+async function assetDeleteReference(data: Recordable<any>) {
+  return requestClient.post('products', data);
+}
+
+export {
+  assetCreateReference,
+  assetDeleteReference,
+  create,
+  getCategories,
+  getDetail,
+  getList,
+  remove,
+  update,
+};

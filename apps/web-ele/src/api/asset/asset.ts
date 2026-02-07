@@ -12,6 +12,7 @@ export namespace Api {
     size: number; // bytes
     ref_count: string;
     created_at: string;
+    security_status: string;
   }
 
   export interface ListResponse {
@@ -91,5 +92,11 @@ async function upload(data: Recordable<any>) {
 async function remove(id: Api.Item['id']) {
   return requestClient.delete(`asset/${id}`);
 }
+// async function update(id: string, data: Recordable<any>) {
+//   return requestClient.put(`system/role/${id}`, data);
+// }
+async function updateAssetSecurityStatus(data: Recordable<any>) {
+  return requestClient.put(`asset/${data.id}/security`, data);
+}
 
-export { getList, remove, upload };
+export { getList, remove, updateAssetSecurityStatus, upload };
