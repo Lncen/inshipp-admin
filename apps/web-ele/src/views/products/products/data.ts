@@ -7,6 +7,7 @@ import { h } from 'vue';
 import { ElTag } from 'element-plus';
 
 import { $t } from '#/locales';
+import { formatImageUrl } from '#/utils/formatImageUrl';
 
 export function useGridFormSchema(): VbenFormSchema[] {
   return [
@@ -77,6 +78,24 @@ export function useColumns<T = Api.ProductItem>(
       field: 'Images',
       title: $t('主图'),
       width: 200,
+      slots: {
+        default: ({ row }: { row: Api.ProductItem }) => {
+          return row.images &&
+            Array.isArray(row.images) &&
+            row.images.length > 0
+            ? h('img', {
+                src: formatImageUrl(row.images[0]),
+                alt: '产品主图',
+                style: {
+                  width: '50%',
+                  height: '50%',
+                  objectFit: 'cover',
+                  borderRadius: '4px',
+                },
+              })
+            : h('span', { style: { color: '#999' } }, '暂无图片');
+        },
+      },
     },
     {
       field: 'name',

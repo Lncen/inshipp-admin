@@ -19,7 +19,7 @@ import {
 import { createReference } from '#/api/asset/asset';
 import { getDetail, update } from '#/api/products/products';
 import ImagePickerDialog from '#/modules/ImagePickerDialog.vue';
-
+import { formatImageUrl } from '#/utils/formatImageUrl';
 // Props & Emits
 const props = defineProps({
   modelValue: Boolean,
@@ -234,22 +234,6 @@ async function onConfirm(urls: string | string[]) {
     }
   }
 }
-const formatImageUrl = (url: string): string => {
-  if (!url) return '';
-
-  // 替换为你的实际API基础URL
-  const API_BASE_URL = import.meta.env.VITE_API_URL;
-
-  if (url.startsWith('http://') || url.startsWith('https://')) {
-    return url;
-  }
-
-  if (url.startsWith('/')) {
-    return `${API_BASE_URL}${url}`;
-  }
-
-  return `${API_BASE_URL}/${url}`;
-};
 </script>
 
 <template>

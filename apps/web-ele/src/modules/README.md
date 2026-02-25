@@ -30,10 +30,6 @@ const onUploadSuccess = (result: { data: Api.Item }) => {
 
 # 图片选择器
 
-
-
-
-
 ```vue
 <script setup lang="ts">
 import { ref } from 'vue';
@@ -42,35 +38,43 @@ import { ElButton } from 'element-plus';
 
 import ImagePickerDialog from '#/modules/ImagePickerDialog.vue';
 
-const dialogVisible = ref(false);
+const imageDialogVisible = ref(false);
 const selectedImg = ref<string>('');
 const selectedImgs = ref<string[]>([]);
 
-// 模拟已有图片列表（实际应从接口获取）
-const imageSource = ref([
-  { url: 'https://example.com/img1.jpg' },
-  { url: 'https://example.com/img2.jpg' },
-  { url: 'https://example.com/img3.jpg' },
-  // ... 更多
-]);
-
 const pickerRef = ref<InstanceType<typeof ImagePickerDialog>>();
+
+const imageSource = ref({
+  assetType: 'image',
+  objectType: 'product',
+  usageType: 'cover',
+});
 
 function openSinglePicker() {
   pickerRef.value?.open(imageSource.value);
 }
 
-function openMultiPicker() {
-  pickerRef.value?.open(imageSource.value);
-}
-
-function onConfirm(urls: string | string[]) {
+async function onConfirm(urls: string | string[]) {
   if (Array.isArray(urls)) {
     selectedImgs.value = urls;
-    console.log('选择了多张：', urls);
+    // console.log('选择了多张：', urls);
   } else {
     selectedImg.value = urls;
-    console.log('选择了单张：', urls);
+    // console.log('选择了单张：', urls, props.productId, formData);
+
+    const data = {
+      asset_id: urls,
+      object_type: 'product',
+      object_id: props.productId,
+      usage_type: 'cover',
+      sort_order: 1,
+    };
+    try {
+      const respons = await createReference(data);
+      formData.images = respons.url;
+    } catch (error) {
+      console.error('创建关联失败：', error);
+    }
   }
 }
 </script>
@@ -88,9 +92,10 @@ function onConfirm(urls: string | string[]) {
     <p>已选详情图：{{ selectedImgs }}</p>
     <!-- 图片选择器 -->
     <!-- :multiple="false" 多选 -->
+  
     <ImagePickerDialog
       ref="pickerRef"
-      v-model="dialogVisible"
+      v-model="imageDialogVisible"
       :default-selected="selectedImg"
       @confirm="onConfirm"
       :max="9"
