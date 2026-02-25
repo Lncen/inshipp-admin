@@ -1,40 +1,3 @@
-# UploadModal 使用
-
-```vue
-<script setup lang="ts">
-import { ref } from 'vue';
-import { ElButton } from 'element-plus';
-import type { Api } from '#/api/asset/asset';
-import UploadModal from '#/modules/UploadModal.vue';
-
-const uploadDialog = ref<InstanceType<typeof UploadModal>>();
-const openUpload = () => {
-  uploadDialog.value?.open({
-    assetType: 'image',
-    objectType: 'product',
-    usageType: 'cover',
-  });
-};
-const onUploadSuccess = (result: { data: Api.Item }) => {
-  // getData();
-  console.log('上传成功:', result);
-  // 或者将新上传的文件添加到当前列表
-  // images.value.unshift(result); // 添加到列表开头
-};
-</script>
-<template>
-  <ElButton @click="openUpload">上传文件</ElButton>
-  <UploadModal ref="uploadDialog" @onUploadSuccess />
-</template>
-```
-
-# 图片选择器
-
-
-
-
-
-```vue
 <script setup lang="ts">
 import { ref } from 'vue';
 
@@ -46,16 +9,13 @@ const dialogVisible = ref(false);
 const selectedImg = ref<string>('');
 const selectedImgs = ref<string[]>([]);
 
-// 模拟已有图片列表（实际应从接口获取）
-const imageSource = ref([
-  { url: 'https://example.com/img1.jpg' },
-  { url: 'https://example.com/img2.jpg' },
-  { url: 'https://example.com/img3.jpg' },
-  // ... 更多
-]);
-
 const pickerRef = ref<InstanceType<typeof ImagePickerDialog>>();
 
+const imageSource = ref({
+  assetType: 'image',
+  objectType: 'product',
+  usageType: 'cover',
+});
 function openSinglePicker() {
   pickerRef.value?.open(imageSource.value);
 }
@@ -67,10 +27,10 @@ function openMultiPicker() {
 function onConfirm(urls: string | string[]) {
   if (Array.isArray(urls)) {
     selectedImgs.value = urls;
-    console.log('选择了多张：', urls);
+    // console.warn('选择了多张：', urls);
   } else {
     selectedImg.value = urls;
-    console.log('选择了单张：', urls);
+    // console.warn('选择了单张：', urls);
   }
 }
 </script>
@@ -81,7 +41,7 @@ function onConfirm(urls: string | string[]) {
       选择主图（单选）
     </ElButton>
     <ElButton type="success" @click="openMultiPicker">
-      选择详情图（多选，最多9张）
+      选择详情图(多选,最多9张)
     </ElButton>
 
     <p>已选主图：{{ selectedImg }}</p>
@@ -98,4 +58,3 @@ function onConfirm(urls: string | string[]) {
     />
   </div>
 </template>
-```

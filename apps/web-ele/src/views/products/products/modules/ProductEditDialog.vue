@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { reactive, ref, watch } from 'vue';
 
 import {
@@ -8,21 +8,23 @@ import {
   ElDivider,
   ElForm,
   ElFormItem,
+  ElImage,
   ElInput,
   ElInputNumber,
   ElMessage,
   ElRow,
   ElSwitch,
-  ElUpload,
 } from 'element-plus';
 
+import { createReference } from '#/api/asset/asset';
 import { getDetail, update } from '#/api/products/products';
+import ImagePickerDialog from '#/modules/ImagePickerDialog.vue';
 
 // Props & Emits
 const props = defineProps({
   modelValue: Boolean,
   productId: {
-    type: Number,
+    type: String,
     required: true,
   },
 });
@@ -73,20 +75,7 @@ const formData = reactive({
 });
 
 // 图片上传模拟（仅前端展示）
-const imageFileList = ref([]);
-
-const handleImageChange = (uploadFile) => {
-  // 模拟：只取 URL 字符串
-  if (uploadFile.raw) {
-    const url = URL.createObjectURL(uploadFile.raw);
-    formData.images = [url];
-    imageFileList.value = [{ url }];
-  }
-};
-const handleImageRemove = () => {
-  formData.images = [];
-  imageFileList.value = [];
-};
+const imageFileList = ref<{ url: string }[]>([]);
 
 // 表单验证规则
 const rules = {
@@ -94,7 +83,11 @@ const rules = {
   price: [
     { required: true, message: '请输入售价', trigger: 'blur' },
     {
-      validator: (rule, value, callback) => {
+      validator: (
+        _rule: any,
+        value: string,
+        callback: (error?: Error) => void,
+      ) => {
         const num = Number.parseFloat(value);
         if (Number.isNaN(num) || num < 0) {
           callback(new Error('价格必须 ≥ 0'));
@@ -110,7 +103,11 @@ const rules = {
   cost_price: [
     { required: true, message: '请输入进货价', trigger: 'blur' },
     {
-      validator: (rule, value, callback) => {
+      validator: (
+        _rule: any,
+        value: string,
+        callback: (error?: Error) => void,
+      ) => {
         const num = Number.parseFloat(value);
         if (Number.isNaN(num) || num < 0) {
           callback(new Error('进货价必须 ≥ 0'));
@@ -129,7 +126,7 @@ const syncStatusMap = {
   success: '同步成功',
   failed: '同步失败',
 };
-const syncStatusType = (status) => {
+const syncStatusType = (status: string) => {
   if (status === 'success') {
     return 'success';
   } else if (status === 'failed') {
@@ -139,7 +136,8 @@ const syncStatusType = (status) => {
   }
 };
 
-const syncStatusText = (status) => syncStatusMap[status] || status;
+const syncStatusText = (status: string) =>
+  syncStatusMap[status as keyof typeof syncStatusMap] || status;
 
 // 获取数据
 const loading = ref(false);
@@ -159,7 +157,7 @@ const fetchData = async () => {
     Object.assign(formData, product);
 
     // 初始化图片
-    imageFileList.value = product.images.map((url) => ({ url }));
+    imageFileList.value = product.images.map((url: any) => ({ url }));
   } catch {
     ElMessage.error('加载商品失败');
     // console.error(error);
@@ -195,6 +193,63 @@ const handleClose = () => {
   // 可选：重置表单
   // Object.assign(formData, initialData)
 };
+
+// ============== 图片选择器 =============
+const imageDialogVisible = ref(false);
+const selectedImg = ref<string>('');
+const selectedImgs = ref<string[]>([]);
+
+const pickerRef = ref<InstanceType<typeof ImagePickerDialog>>();
+
+const imageSource = ref({
+  assetType: 'image',
+  objectType: 'product',
+  usageType: 'cover',
+});
+
+function openSinglePicker() {
+  pickerRef.value?.open(imageSource.value);
+}
+
+async function onConfirm(urls: string | string[]) {
+  if (Array.isArray(urls)) {
+    selectedImgs.value = urls;
+    // console.log('选择了多张：', urls);
+  } else {
+    selectedImg.value = urls;
+    // console.log('选择了单张：', urls, props.productId, formData);
+
+    const data = {
+      asset_id: urls,
+      object_type: 'product',
+      object_id: props.productId,
+      usage_type: 'cover',
+      sort_order: 1,
+    };
+    try {
+      const respons = await createReference(data);
+      formData.images = respons.url;
+    } catch (error) {
+      console.error('创建关联失败：', error);
+    }
+  }
+}
+const formatImageUrl = (url: string): string => {
+  if (!url) return '';
+
+  // 替换为你的实际API基础URL
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
+
+  if (url.startsWith('http://') || url.startsWith('https://')) {
+    return url;
+  }
+
+  if (url.startsWith('/')) {
+    return `${API_BASE_URL}${url}`;
+  }
+
+  return `${API_BASE_URL}/${url}`;
+};
 </script>
 
 <template>
@@ -212,7 +267,6 @@ const handleClose = () => {
       size="default"
       scroll-to-error
     >
-      <!-- 商品名称 + 本地分类 -->
       <ElRow :gutter="24">
         <ElCol :xs="24" :sm="12" :md="12">
           <ElFormItem label="商品名称" prop="name">
@@ -225,22 +279,34 @@ const handleClose = () => {
           </ElFormItem>
         </ElCol>
       </ElRow>
+      <ElRow :gutter="24">
+        <ElFormItem label="商品图片">
+          <!-- 图片列表 -->
+          <div class="image-grid" v-loading="loading">
+            <div v-for="img in formData.images" :key="img" class="image-item">
+              <ElImage
+                :src="formatImageUrl(img)"
+                fit="cover"
+                lazy
+                class="preview-img"
+              />
+            </div>
 
-      <!-- 商品图片 -->
-      <ElFormItem label="商品图片">
-        <ElUpload
-          v-model:file-list="imageFileList"
-          list-type="picture-card"
-          :auto-upload="true"
-          :on-change="handleImageChange"
-          :on-remove="handleImageRemove"
-          accept="image/*"
-        >
-          <div class="upload-placeholder">+</div>
-        </ElUpload>
-      </ElFormItem>
+            <!-- 空状态 -->
+            <ElEmpty
+              v-if="formData.images.length === 0"
+              description="暂无图片"
+            />
+          </div>
+        </ElFormItem>
 
-      <!-- 价格 & 库存区域 -->
+        <ElFormItem label=" ">
+          <ElButton type="primary" @click="openSinglePicker">
+            选择主图（单选）
+          </ElButton>
+        </ElFormItem>
+      </ElRow>
+
       <ElRow :gutter="24">
         <ElCol :xs="24" :sm="12" :md="12">
           <ElFormItem label="售价" prop="price">
@@ -383,6 +449,15 @@ const handleClose = () => {
       </ElButton>
     </template>
   </ElDialog>
+
+  <ImagePickerDialog
+    ref="pickerRef"
+    v-model="imageDialogVisible"
+    :default-selected="selectedImg"
+    @confirm="onConfirm"
+    :max="9"
+    :multiple="false"
+  />
 </template>
 <style scoped>
 .upload-placeholder {
@@ -393,5 +468,10 @@ const handleClose = () => {
   height: 100%;
   font-size: 24px;
   color: #888;
+}
+
+.preview-img {
+  width: 200px;
+  aspect-ratio: 4/3; /* 保持比例 */
 }
 </style>

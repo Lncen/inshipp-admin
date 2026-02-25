@@ -74,6 +74,11 @@ export function useColumns<T = Api.ProductItem>(
       width: 70,
     },
     {
+      field: 'Images',
+      title: $t('主图'),
+      width: 200,
+    },
+    {
       field: 'name',
       title: $t('products.name'),
       width: 200,

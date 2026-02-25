@@ -90,7 +90,7 @@ const userConfig = {
      * ^^^^^^^^^^^^^^ empty line.
      * - Something here
      */
-    'body-leading-blank': [0, 'always'],
+    'body-leading-blank': [2, 'always'],
     /**
      * type[scope]: [function] description
      *

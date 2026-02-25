@@ -120,8 +120,6 @@ function getNodeClass(node: Recordable<any>) {
             value-field="id"
             label-field="name"
           />
-
-          <!-- 可选：自定义 loading 图标（如果你希望统一图标） -->
           <template #icon>
             <IconifyIcon
               icon="svg-spinners:bars-scale"

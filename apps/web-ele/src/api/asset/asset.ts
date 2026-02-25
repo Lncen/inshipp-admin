@@ -65,7 +65,7 @@ export namespace Api {
 }
 
 /**
- * 获取数据
+ * 获取分类数据
  */
 async function getList(params: Recordable<any>) {
   return requestClient.get<Api.ListResponse>('asset', {
@@ -99,4 +99,59 @@ async function updateAssetSecurityStatus(data: Recordable<any>) {
   return requestClient.put(`asset/${data.id}/security`, data);
 }
 
-export { getList, remove, updateAssetSecurityStatus, upload };
+/**
+ * 添加引用
+ */
+async function createReference(data: Recordable<any>) {
+  return requestClient.post('reference', data);
+}
+
+/**
+ * 删除引用
+ */
+async function deleteReference(data: Recordable<any>) {
+  return requestClient.post('products', data);
+}
+
+/**
+ * 获取对象引用
+ */
+async function getReference(params: Recordable<any>) {
+  return requestClient.get<Api.ListResponse>('reference/by-object', {
+    params,
+  });
+}
+
+export const assetTypeOptions = [
+  { value: 'image', label: '图片' },
+  { value: 'video', label: '视频' },
+  { value: 'audio', label: '音频' },
+  { value: 'file', label: '文件' },
+  { value: 'other', label: '其他' },
+];
+
+export const objectTypeOptions = [
+  { value: 'product', label: '产品' },
+  { value: 'content', label: '内容' },
+  { value: 'user', label: '用户' },
+];
+
+export const usageTypeOptions = [
+  { value: 'avatar', label: '头像' },
+  { value: 'cover', label: '主图' },
+  { value: 'gallery', label: '相册图' },
+  { value: 'detail', label: '详情图' },
+  { value: 'banner', label: '广告图' },
+  { value: 'attachment', label: '附件' },
+  { value: 'other', label: '其他' },
+];
+
+export {
+  createReference,
+  deleteReference,
+  getList,
+  getReference,
+  remove,
+  updateAssetSecurityStatus,
+  upload,
+};

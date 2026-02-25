@@ -12,7 +12,12 @@ import {
   ElUpload,
 } from 'element-plus';
 
-import { upload } from '#/api/asset/asset';
+import {
+  assetTypeOptions,
+  objectTypeOptions,
+  upload,
+  usageTypeOptions,
+} from '#/api/asset/asset';
 
 // const props = defineProps<{}>();
 
@@ -26,31 +31,6 @@ interface AssetUploadOptions {
   objectType?: string;
   usageType?: string;
 }
-
-// ====== Options ======
-const assetTypeOptions = [
-  { value: 'image', label: '图片' },
-  { value: 'video', label: '视频' },
-  { value: 'audio', label: '音频' },
-  { value: 'file', label: '文件' },
-  { value: 'other', label: '其他' },
-];
-
-const objectTypeOptions = [
-  { value: 'product', label: '产品' },
-  { value: 'content', label: '内容' },
-  { value: 'user', label: '用户' },
-];
-
-const usageTypeOptions = [
-  { value: 'avatar', label: '头像' },
-  { value: 'cover', label: '主图' },
-  { value: 'gallery', label: '相册图' },
-  { value: 'detail', label: '详情图' },
-  { value: 'banner', label: '广告图' },
-  { value: 'attachment', label: '附件' },
-  { value: 'other', label: '其他' },
-];
 
 // ====== State ======
 const visible = ref(false);
@@ -233,7 +213,6 @@ defineExpose({
     @close="handleClose"
   >
     <div class="flex items-center gap-2">
-      <!-- 标题 "资源:" 改为蓝色 -->
       <span class="font-medium text-red-500">资 源:</span>
       <ElButtonGroup class="flex flex-1 flex-wrap gap-2">
         <ElButton

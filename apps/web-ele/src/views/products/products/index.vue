@@ -221,7 +221,7 @@ const props = reactive({
 
   <ProductEditDialog
     v-model="showEdit"
-    :product-id="productId"
+    :product-id="productId || ''"
     @saved="onRefresh"
   />
 </template>

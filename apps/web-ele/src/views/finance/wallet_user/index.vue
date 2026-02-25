@@ -172,7 +172,6 @@ onMounted(() => {
 
 <template>
   <Page auto-content-height>
-    <!-- 自定义搜索栏（纯模板语法） -->
     <div class="mb-2 rounded-lg shadow-sm">
       <ElCard>
         <ElForm

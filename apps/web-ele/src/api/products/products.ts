@@ -122,25 +122,25 @@ async function getCategories() {
  * 获取详细数据
  */
 async function getDetail(id: string) {
-  return requestClient.get<Array<Api.ProductItem>>(`products/${id}`);
+  return requestClient.get<Api.ProductItem>(`products/${id}`);
 }
 
 /**
  * 商品主图添加引用
  */
-async function assetCreateReference(data: Recordable<any>) {
-  return requestClient.post('products', data);
-}
-/**
- * 商品主图删除引用
- */
-async function assetDeleteReference(data: Recordable<any>) {
-  return requestClient.post('products', data);
-}
+// async function assetCreateReference(data: Recordable<any>) {
+//   return requestClient.post('products', data);
+// }
+// /**
+//  * 商品主图删除引用
+//  */
+// async function assetDeleteReference(data: Recordable<any>) {
+//   return requestClient.post('products', data);
+// }
 
 export {
-  assetCreateReference,
-  assetDeleteReference,
+  // assetCreateReference,
+  // assetDeleteReference,
   create,
   getCategories,
   getDetail,

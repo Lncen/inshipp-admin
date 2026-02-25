@@ -204,7 +204,6 @@ watch(
       label-width="110px"
       status-icon
     >
-      <!-- 用户ID -->
       <ElFormItem label="用户名" prop="username">
         <ElInput
           v-model.string="form.username"
@@ -218,7 +217,6 @@ watch(
         </ElInput>
       </ElFormItem>
 
-      <!-- 用户信息展示 -->
       <ElFormItem label="用户信息">
         <div>
           <ElTag type="success" effect="plain" v-if="userInfo.username">
@@ -241,7 +239,6 @@ watch(
         </div>
       </ElFormItem>
 
-      <!-- 金额（支持负数） -->
       <ElFormItem label="调账金额" prop="amount">
         <ElInput
           v-model="form.amount"
@@ -251,7 +248,6 @@ watch(
           <template #prepend>¥</template>
         </ElInput>
 
-        <!-- 实时提示效果 -->
         <div class="tip" :class="amountType.class">
           <IconifyIcon icon="ion:chatbubble-ellipses-outline" />
           <span style="margin-left: 6px">
@@ -261,7 +257,6 @@ watch(
         </div>
       </ElFormItem>
 
-      <!-- 备注 -->
       <ElFormItem label="操作备注" prop="remark">
         <ElInput
           v-model="form.remark"

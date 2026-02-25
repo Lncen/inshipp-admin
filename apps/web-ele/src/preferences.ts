@@ -16,9 +16,4 @@ export const overridesPreferences = defineOverridesPreferences({
     // 刷新令牌
     enableRefreshToken: true,
   },
-  tabbar: {
-    keepAlive: true,
-    maxCount: 20,
-    persist: false,
-  },
 });

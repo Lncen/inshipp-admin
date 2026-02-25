@@ -84,10 +84,6 @@ function onEdit_balance(row: Api.Item) {
 function onRefresh() {
   gridApi.query();
 }
-
-// function onCreate() {
-//   formDrawerApi.setData({}).open();
-// }
 </script>
 <template>
   <Page auto-content-height>

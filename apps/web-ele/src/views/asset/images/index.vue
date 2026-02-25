@@ -18,7 +18,14 @@ import {
   ElRadioGroup,
 } from 'element-plus';
 
-import { getList, remove, updateAssetSecurityStatus } from '#/api/asset/asset';
+import {
+  assetTypeOptions,
+  getList,
+  objectTypeOptions,
+  remove,
+  updateAssetSecurityStatus,
+  usageTypeOptions,
+} from '#/api/asset/asset';
 import UploadModal from '#/modules/UploadModal.vue';
 
 const loading = ref(false);
@@ -29,7 +36,7 @@ const size = ref<ComponentSize>('default');
 const total = ref(0);
 const background = ref(false);
 const disabled = ref(false);
-// 模拟数据（替换为你的 API 调用）
+
 const images = ref<Api.Item[]>([]);
 
 const getData = async () => {
@@ -70,30 +77,6 @@ const form = reactive({
   usageType: 'cover',
 });
 
-// ====== Options ======
-const assetTypeOptions = [
-  { value: 'image', label: '图片' },
-  { value: 'video', label: '视频' },
-  { value: 'audio', label: '音频' },
-  { value: 'file', label: '文件' },
-  { value: 'other', label: '其他' },
-];
-
-const objectTypeOptions = [
-  { value: 'product', label: '产品' },
-  { value: 'content', label: '内容' },
-  { value: 'user', label: '用户' },
-];
-
-const usageTypeOptions = [
-  { value: 'avatar', label: '头像' },
-  { value: 'cover', label: '主图' },
-  { value: 'gallery', label: '相册图' },
-  { value: 'detail', label: '详情图' },
-  { value: 'banner', label: '广告图' },
-  { value: 'attachment', label: '附件' },
-  { value: 'other', label: '其他' },
-];
 const openUpload = () => {
   uploadDialog.value?.open(form);
 };
