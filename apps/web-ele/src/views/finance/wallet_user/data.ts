@@ -106,7 +106,7 @@ export function useColumns(): VxeTableGridOptions['columns'] {
       showOverflow: 'tooltip' as const,
     },
     {
-      field: 'reference_id',
+      field: 'reference_no',
       title: '订单号',
       minWidth: 180,
       slots: {
@@ -114,7 +114,7 @@ export function useColumns(): VxeTableGridOptions['columns'] {
           return h(
             'span',
             { class: 'font-mono text-xs text-gray-500' },
-            row.reference_id || '-',
+            row.reference_no || '-',
           );
         },
       },

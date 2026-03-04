@@ -57,7 +57,7 @@ const wallet_detail_Form = async () => {
 // ==================== 表单数据 ====================
 const searchForm = ref({
   username: '',
-  reference_id: '',
+  reference_no: '',
   remark: '',
   type: '',
   timestamp: [] as string[], // [start, end]
@@ -66,7 +66,7 @@ const searchForm = ref({
 const resetForm = () => {
   searchForm.value = {
     username: '',
-    reference_id: '',
+    reference_no: '',
     remark: '',
     type: '',
     timestamp: [],
@@ -79,7 +79,7 @@ const resetForm = () => {
 const handleSearch = () => {
   const params: any = {
     username: searchForm.value.username || undefined,
-    reference_id: searchForm.value.reference_id || undefined,
+    reference_no: searchForm.value.reference_no || undefined,
     remark: searchForm.value.remark || undefined,
     type: searchForm.value.type || undefined,
     created_at_min: searchForm.value.timestamp[0] || undefined,
@@ -105,7 +105,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
             page: page.currentPage,
             page_size: page.pageSize, // 默认改为10
             username: searchForm.value.username || undefined,
-            reference_id: searchForm.value.reference_id || undefined,
+            reference_no: searchForm.value.reference_no || undefined,
             remark: searchForm.value.remark || undefined,
             type: searchForm.value.type || undefined,
             created_at_min: searchForm.value.timestamp[0] || undefined,
@@ -132,11 +132,13 @@ const [Grid, gridApi] = useVbenVxeGrid({
 
 // ==================== 弹窗 ====================
 const centerDialogVisible = ref(false);
+const idempotency_key = ref<string>('');
 const onCreate = () => {
   // if (!searchForm.value.username?.trim()) {
   //   ElMessage.warning('请先输入用户名');
   //   return;
   // }
+  idempotency_key.value = crypto.randomUUID();
   centerDialogVisible.value = true;
 };
 
@@ -192,7 +194,7 @@ onMounted(() => {
 
           <ElFormItem label="订单号">
             <ElInput
-              v-model="searchForm.reference_id"
+              v-model="searchForm.reference_no"
               placeholder="输入订单号"
               clearable
             />
@@ -360,6 +362,7 @@ onMounted(() => {
     <AdminMoneyDialog
       v-model:visible="centerDialogVisible"
       :username="searchForm.username"
+      :idempotency_key="idempotency_key"
       @success="(username: string) => onRefresh(username)"
     />
   </Page>

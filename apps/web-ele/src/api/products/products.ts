@@ -5,12 +5,86 @@ import { requestClient } from '#/api/request';
 export namespace Api {
   // 会员等级接口定义
   export interface Item {
-    id: string;
+    id?: string | undefined;
     name: string;
-    price?: number;
-    image?: string;
-    categoryId?: string; // 所属分类 ID
-    children?: Item[];
+    source_type: number;
+    source_type_display: string;
+    status: number;
+    status_display: string;
+    type: number;
+    type_display: string;
+    price: string;
+    cost_price: string;
+    stock: number;
+    is_closed: number;
+    sort: number;
+    category_name: string;
+    created_at: string;
+    images: string[];
+  }
+
+  export interface ProductItem {
+    // ── 基础字段 ───────────────────────────────
+    id?: string | undefined;
+    name: string;
+    after_sale_rules: string;
+    description: string;
+    unit: string;
+
+    // ── 分类 ───────────────────────────────────
+    category: number | undefined;
+
+    // ── 价格（注意：Decimal 在 JSON 中为 string）────────
+    cost_price: string; // e.g. "99.99000000"
+    price: string; // e.g. "199.99000000"
+    purchase_step: string; // e.g. "1.0000"
+    price_display_precision: number;
+    images: string[];
+
+    // ── 库存与购买限制 ───────────────────────────
+    stock: number; // -1 表示无限库存
+    min_quantity: number;
+    max_quantity: number;
+
+    // ── 履约与功能标志 ───────────────────────────
+    fulfillment_type: number;
+    status: number;
+    source_type: number;
+    type: number;
+    is_closed: number;
+    is_repeatable: number;
+    is_batch: number;
+    can_refund: number;
+    rule_type: number;
+
+    // ── 其他 ───────────────────────────────────
+    sort: number;
+    input_fields_overridden: boolean;
+
+    // ── 上游 ───────────────────────────────────
+    owner_sup?: number;
+    params_template: params_template[];
+
+    // ── 时间 ───────────────────────────────────
+    created_at: string;
+    updated_at: string;
+  }
+
+  export interface params_template {
+    id?: string | undefined;
+    supplier_id?: string | undefined;
+    code?: string | undefined;
+    key: string;
+    name: string;
+    type: number;
+    value: string;
+    verify: {
+      max: number;
+      min: number;
+    };
+    is_default: boolean;
+    description: string;
+    type_config: string;
   }
 
   // 编辑或创建字段（假设可编辑的字段）
@@ -43,36 +117,6 @@ export namespace Api {
     name: string;
     path: string;
     children: MenuItem[];
-  }
-
-  export interface ProductItem {
-    id: string;
-    uid: string;
-    name: string;
-    images: string[];
-    description: string;
-    ordering_notes: string;
-    is_card_product: boolean;
-    is_refund_allowed: boolean;
-    price: string;
-    profit: number;
-    stock: number;
-    input_fields: any[]; // 若有具体结构可替换为更精确类型
-    is_active: boolean;
-    sort_weight: number;
-    last_sync_at: null | string; // ISO 8601 格式时间字符串，如 "2026-01-06 22:17:03"
-    sync_status: 'failed' | 'pending' | 'success' | string; // 可根据实际枚举值细化
-    created_at: string; // "2026-01-06 22:17:03"
-    updated_at: string;
-    cost_price: string; // 同 price，建议保持 string
-    min_quantity: number;
-    max_quantity: number;
-    upstream_tags: string; // 如 "self,自营"，也可考虑 string[]
-    upstream_category_name: string;
-    upstream_refund_allowed_statuses: any[]; // 若无内容或结构未知，保留 any[]
-    supplier_name: string;
-    category_name: string;
-    category: number; // 分类 ID
   }
 }
 
@@ -124,19 +168,72 @@ async function getCategories() {
 async function getDetail(id: string) {
   return requestClient.get<Api.ProductItem>(`products/${id}`);
 }
+// utils/choices.ts
 
-/**
- * 商品主图添加引用
- */
-// async function assetCreateReference(data: Recordable<any>) {
-//   return requestClient.post('products', data);
-// }
-// /**
-//  * 商品主图删除引用
-//  */
-// async function assetDeleteReference(data: Recordable<any>) {
-//   return requestClient.post('products', data);
-// }
+// 1. 兑换方式 (RedeemType)
+export const redeemTypeOptions = [
+  { label: '自动发货', value: 1 },
+  { label: '人工处理', value: 2 },
+  { label: '内部API触发', value: 3 },
+] as const;
+
+// 2. 商品类型 (ProductType)
+export const productTypeOptions = [
+  { label: '会员卡', value: 1 },
+  { label: '优惠券', value: 2 },
+  { label: '礼品卡 / 充值卡', value: 3 },
+  { label: '数字内容（电子书 / 视频）', value: 4 },
+  { label: '在线服务', value: 5 },
+  { label: '在线课程', value: 6 },
+  { label: '游戏道具 / 点卡', value: 7 },
+  { label: '其他虚拟商品', value: 8 },
+] as const;
+
+// 3. 商品状态 (ProductStatus)
+// utils/choices.ts
+export const productStatusOptions = [
+  { label: '待审核', value: 1, type: 'info' },
+  { label: '未通过', value: 2, type: 'danger' },
+  { label: '待上架', value: 3, type: 'warning' },
+  { label: '已下架', value: 5, type: 'info' },
+  { label: '已清退', value: 6, type: 'danger' },
+  { label: '已上架', value: 7, type: 'success' },
+  { label: '售罄', value: 8, type: 'warning' },
+] as const;
+
+// 4. 来源类型 (SourceType)
+export const sourceTypeOptions = [
+  { label: '供应商对接', value: 1 },
+  { label: '本地商品', value: 2 },
+] as const;
+
+// 5. 是/否 (FlagChoice)
+export const flagOptions = [
+  { label: '是', value: 1, type: 'success' },
+  { label: '否', value: 2, type: 'danger' },
+];
+
+// 5. 是/否关闭下单 (FlagChoice)
+export const isClosedOptions = [
+  { label: '否', value: 1, type: 'success' },
+  { label: '是', value: 2, type: 'danger' },
+] as const;
+
+// 6. 输入类型 (InputType)
+export const inputTypeOptions = [
+  { label: '文本', value: 10 },
+  { label: '数字', value: 20 },
+  { label: '下拉选择', value: 30 },
+  { label: '多选', value: 40 },
+  { label: '多行文本', value: 50 },
+  { label: 'URL 链接', value: 61 },
+] as const;
+
+// 7. 规则类型 (RuleType)
+export const ruleTypeOptions = [
+  { label: '固定', value: 1 },
+  { label: '百分比', value: 2 },
+] as const;
 
 export {
   // assetCreateReference,

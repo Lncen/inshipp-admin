@@ -142,6 +142,7 @@ export const usageTypeOptions = [
   { value: 'gallery', label: '相册图' },
   { value: 'detail', label: '详情图' },
   { value: 'banner', label: '广告图' },
+  { value: 'icon', label: '图标' },
   { value: 'attachment', label: '附件' },
   { value: 'other', label: '其他' },
 ];

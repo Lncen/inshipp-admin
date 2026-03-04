@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue';
+import { nextTick, onUnmounted, reactive, ref, watch } from 'vue';
 
 import {
   ElButton,
+  ElCascader,
   ElCol,
   ElDialog,
   ElDivider,
+  ElEmpty,
   ElForm,
   ElFormItem,
   ElImage,
@@ -14,12 +16,14 @@ import {
   ElMessage,
   ElRow,
   ElSwitch,
+  ElTag,
 } from 'element-plus';
 
 import { createReference } from '#/api/asset/asset';
 import { getDetail, update } from '#/api/products/products';
 import ImagePickerDialog from '#/modules/ImagePickerDialog.vue';
 import { formatImageUrl } from '#/utils/formatImageUrl';
+
 // Props & Emits
 const props = defineProps({
   modelValue: Boolean,
@@ -27,29 +31,56 @@ const props = defineProps({
     type: String,
     required: true,
   },
+  categories: {
+    // 接收多级分类数据
+
+    default: () => [],
+  },
 });
+
 const emit = defineEmits(['update:modelValue', 'saved']);
 
 // 控制弹窗显示
 const visible = ref(false);
-watch(
+
+// 监听器清理函数存储
+let stopWatchModelValue: (() => void) | null = null;
+let stopWatchVisible: (() => void) | null = null;
+
+// 组件卸载时清理
+onUnmounted(() => {
+  if (stopWatchModelValue) stopWatchModelValue();
+  if (stopWatchVisible) stopWatchVisible();
+  // 确保弹窗关闭
+  visible.value = false;
+});
+
+// 使用 nextTick 确保 DOM 更新后再执行
+stopWatchModelValue = watch(
   () => props.modelValue,
-  (val) => {
+  async (val) => {
     visible.value = val;
     if (val) {
+      await nextTick();
       fetchData();
+    } else {
+      // 确保弹窗真正关闭后再执行清理
+      setTimeout(() => {
+        handleClose();
+      }, 300);
     }
   },
 );
-watch(visible, (val) => {
+
+stopWatchVisible = watch(visible, (val) => {
   emit('update:modelValue', val);
 });
 
-// 表单数据
-const formData = reactive({
+// 表单数据 - 使用初始状态以便重置
+const initialFormData = {
   id: null,
   name: '',
-  images: [],
+  images: [] as string[],
   price: '0.00000000',
   cost_price: '0.00000000',
   stock: -1,
@@ -63,7 +94,7 @@ const formData = reactive({
   ordering_notes: '',
   supplier_name: '',
   category_name: '',
-  category_id: null,
+  category_id: undefined,
   supplier_id: null,
   supplier_product_id: '',
   upstream_category_name: '',
@@ -72,7 +103,9 @@ const formData = reactive({
   last_sync_at: null,
   created_at: null,
   updated_at: null,
-});
+};
+
+const formData = reactive({ ...initialFormData });
 
 // 图片上传模拟（仅前端展示）
 const imageFileList = ref<{ url: string }[]>([]);
@@ -120,6 +153,15 @@ const rules = {
   ],
 };
 
+// 级联选择器配置
+const cascaderProps = {
+  value: 'id',
+  label: 'name',
+  children: 'children',
+  checkStrictly: true, // 可选择任意一级选项
+  emitPath: false, // 只返回最终选择项的值
+};
+
 // 同步状态映射
 const syncStatusMap = {
   pending: '待同步',
@@ -144,9 +186,8 @@ const loading = ref(false);
 const fetchData = async () => {
   try {
     loading.value = true;
-    // 假设 getList() 返回 { data: Product[] }，这里按 ID 过滤
-    // 实际应替换为 getProduct(id) 接口
-    const product = await getDetail(props.productId); // 你提供的接口
+
+    const product = await getDetail(props.productId);
     if (!product) {
       ElMessage.error('商品未找到');
       visible.value = false;
@@ -157,10 +198,10 @@ const fetchData = async () => {
     Object.assign(formData, product);
 
     // 初始化图片
-    imageFileList.value = product.images.map((url: any) => ({ url }));
-  } catch {
+    imageFileList.value = product.images?.map((url: any) => ({ url })) || [];
+  } catch (error) {
+    console.error('加载商品失败:', error);
     ElMessage.error('加载商品失败');
-    // console.error(error);
     visible.value = false;
   } finally {
     loading.value = false;
@@ -176,11 +217,12 @@ const handleSubmit = async () => {
     await formRef.value.validate();
     submitting.value = true;
 
-    update(props.productId, formData);
+    await update(props.productId, formData);
     ElMessage.success('保存成功');
     emit('saved');
     visible.value = false;
-  } catch {
+  } catch (error) {
+    console.error('表单验证或提交失败:', error);
     ElMessage.error('请检查表单');
   } finally {
     submitting.value = false;
@@ -190,8 +232,16 @@ const handleSubmit = async () => {
 
 // 关闭时清理
 const handleClose = () => {
-  // 可选：重置表单
-  // Object.assign(formData, initialData)
+  // 重置表单数据到初始状态
+  Object.keys(initialFormData).forEach((key) => {
+    (formData as any)[key] = (initialFormData as any)[key];
+  });
+
+  // 清空图片列表
+  imageFileList.value = [];
+
+  // 确保组件状态一致
+  visible.value = false;
 };
 
 // ============== 图片选择器 =============
@@ -214,10 +264,8 @@ function openSinglePicker() {
 async function onConfirm(urls: string | string[]) {
   if (Array.isArray(urls)) {
     selectedImgs.value = urls;
-    // console.log('选择了多张：', urls);
   } else {
     selectedImg.value = urls;
-    // console.log('选择了单张：', urls, props.productId, formData);
 
     const data = {
       asset_id: urls,
@@ -227,10 +275,13 @@ async function onConfirm(urls: string | string[]) {
       sort_order: 1,
     };
     try {
-      const respons = await createReference(data);
-      formData.images = respons.url;
+      const response = await createReference(data);
+      if (response && response.url) {
+        formData.images = [response.url]; // 确保是数组格式
+      }
     } catch (error) {
       console.error('创建关联失败：', error);
+      ElMessage.error('图片关联失败');
     }
   }
 }
@@ -241,6 +292,8 @@ async function onConfirm(urls: string | string[]) {
     v-model="visible"
     title="编辑商品详情"
     width="800px"
+    destroy-on-close
+    append-to-body
     @close="handleClose"
   >
     <ElForm
@@ -259,15 +312,26 @@ async function onConfirm(urls: string | string[]) {
         </ElCol>
         <ElCol :xs="24" :sm="12" :md="12">
           <ElFormItem label="本地分类">
-            <ElInput v-model="formData.category_name" readonly />
+            <ElCascader
+              v-model="formData.category_id"
+              :options="categories"
+              :props="cascaderProps"
+              placeholder="请选择分类"
+              clearable
+              filterable
+              style="width: 100%"
+            />
           </ElFormItem>
         </ElCol>
       </ElRow>
       <ElRow :gutter="24">
         <ElFormItem label="商品图片">
-          <!-- 图片列表 -->
           <div class="image-grid" v-loading="loading">
-            <div v-for="img in formData.images" :key="img" class="image-item">
+            <div
+              v-for="(img, index) in formData.images"
+              :key="index"
+              class="image-item"
+            >
               <ElImage
                 :src="formatImageUrl(img)"
                 fit="cover"
@@ -275,8 +339,6 @@ async function onConfirm(urls: string | string[]) {
                 class="preview-img"
               />
             </div>
-
-            <!-- 空状态 -->
             <ElEmpty
               v-if="formData.images.length === 0"
               description="暂无图片"
@@ -350,7 +412,6 @@ async function onConfirm(urls: string | string[]) {
         </ElCol>
       </ElRow>
 
-      <!-- 开关类字段（上架状态、退单等） -->
       <ElRow :gutter="24">
         <ElCol :xs="24" :sm="12" :md="12">
           <ElFormItem label="上架状态">
@@ -368,7 +429,6 @@ async function onConfirm(urls: string | string[]) {
           </ElFormItem>
         </ElCol>
 
-        <!-- 排序权重（单独一行） -->
         <ElFormItem label="排序权重">
           <ElInputNumber
             v-model="formData.sort_weight"
@@ -379,7 +439,7 @@ async function onConfirm(urls: string | string[]) {
           />
         </ElFormItem>
       </ElRow>
-      <!-- 描述类字段 -->
+
       <ElFormItem label="商品详情">
         <ElInput
           v-model="formData.description"
@@ -398,7 +458,6 @@ async function onConfirm(urls: string | string[]) {
         />
       </ElFormItem>
 
-      <!-- 只读信息 -->
       <ElDivider content-position="left">只读信息</ElDivider>
       <ElRow :gutter="24">
         <ElCol :xs="24" :sm="12" :md="12">
@@ -418,9 +477,9 @@ async function onConfirm(urls: string | string[]) {
         </ElCol>
         <ElCol :xs="24" :sm="12" :md="12">
           <ElFormItem label="同步状态">
-            <el-tag :type="syncStatusType(formData.sync_status)">
+            <ElTag :type="syncStatusType(formData.sync_status)">
               {{ syncStatusText(formData.sync_status) }}
-            </el-tag>
+            </ElTag>
           </ElFormItem>
         </ElCol>
       </ElRow>
@@ -443,7 +502,29 @@ async function onConfirm(urls: string | string[]) {
     :multiple="false"
   />
 </template>
+
 <style scoped>
+.image-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.image-item {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  overflow: hidden;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+}
+
+.preview-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .upload-placeholder {
   display: flex;
   align-items: center;
@@ -452,10 +533,5 @@ async function onConfirm(urls: string | string[]) {
   height: 100%;
   font-size: 24px;
   color: #888;
-}
-
-.preview-img {
-  width: 200px;
-  aspect-ratio: 4/3; /* 保持比例 */
 }
 </style>

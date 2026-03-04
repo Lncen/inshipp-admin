@@ -4,10 +4,15 @@ import type { Api } from '#/api/products/products';
 
 import { h } from 'vue';
 
-import { ElTag } from 'element-plus';
-
+import {
+  isClosedOptions,
+  productStatusOptions,
+  ruleTypeOptions,
+  sourceTypeOptions,
+} from '#/api/products/products';
 import { $t } from '#/locales';
 import { formatImageUrl } from '#/utils/formatImageUrl';
+import { renderChoiceTag } from '#/utils/renderChoiceTag';
 
 export function useGridFormSchema(): VbenFormSchema[] {
   return [
@@ -75,9 +80,9 @@ export function useColumns<T = Api.ProductItem>(
       width: 70,
     },
     {
-      field: 'Images',
+      field: 'images',
       title: $t('主图'),
-      width: 200,
+      width: 70,
       slots: {
         default: ({ row }: { row: Api.ProductItem }) => {
           return row.images &&
@@ -87,8 +92,8 @@ export function useColumns<T = Api.ProductItem>(
                 src: formatImageUrl(row.images[0]),
                 alt: '产品主图',
                 style: {
-                  width: '50%',
-                  height: '50%',
+                  width: '100%',
+                  height: '100%',
                   objectFit: 'cover',
                   borderRadius: '4px',
                 },
@@ -100,39 +105,48 @@ export function useColumns<T = Api.ProductItem>(
     {
       field: 'name',
       title: $t('products.name'),
-      width: 200,
+      width: 150,
     },
-
+    {
+      field: 'is_closed',
+      title: $t('关闭下单'),
+      width: 80,
+      align: 'center',
+      slots: {
+        default: ({ row }: { row: Api.ProductItem }) =>
+          renderChoiceTag(row.is_closed, isClosedOptions),
+      },
+    },
+    {
+      field: 'source_type',
+      title: $t('产品来源'),
+      width: 100,
+      align: 'center',
+      slots: {
+        default: ({ row }: { row: Api.ProductItem }) =>
+          renderChoiceTag(row.is_closed, sourceTypeOptions),
+      },
+    },
+    {
+      field: 'status',
+      title: $t('产品状态'),
+      width: 100,
+      align: 'center',
+      slots: {
+        default: ({ row }: { row: Api.ProductItem }) =>
+          renderChoiceTag(row.is_closed, productStatusOptions),
+      },
+    },
     {
       field: 'profit',
       title: $t('products.profit'),
       width: 100,
       slots: {
         default: ({ row }: { row: Api.ProductItem }) => {
-          // 转换为数字类型并计算 profit = price - cost_price
           const price = Number(row.price) || 0;
           const costPrice = Number(row.cost_price) || 0;
           const calculatedValue = price - costPrice;
-          return calculatedValue.toFixed(8); // 保留两位小数
-        },
-      },
-    },
-    {
-      field: 'is_active',
-      title: $t('products.status'),
-
-      slots: {
-        default: ({ row }: { row: Api.ProductItem }) => {
-          const isActive = row.is_active;
-          return h(
-            ElTag,
-            {
-              type: isActive ? 'success' : 'info',
-              size: 'small',
-              effect: 'light',
-            },
-            () => (isActive ? $t('common.enabled') : $t('common.disabled')),
-          );
+          return calculatedValue.toFixed(8);
         },
       },
     },
@@ -149,53 +163,20 @@ export function useColumns<T = Api.ProductItem>(
     {
       field: 'stock',
       title: $t('products.stock'),
-    },
-    {
-      field: 'min_quantity',
-      title: $t('products.min_quantity'),
-    },
-
-    {
-      field: 'supplier_name',
-      title: $t('products.supplier_name'),
-      width: 90,
-      slots: {
-        default: ({ row }: { row: Api.ProductItem }) => {
-          return h(
-            ElTag,
-            {
-              type: 'warning',
-              size: 'small',
-              effect: 'light',
-            },
-            () => row.supplier_name || '--',
-          );
-        },
-      },
-    },
-    {
-      field: 'refund_allowed',
-      title: $t('products.is_refund_allowed'),
       width: 80,
-      align: 'center',
+    },
+    {
+      field: 'rule_type',
+      title: $t('结算规则'),
+      width: 100,
       slots: {
-        default: ({ row }: { row: Api.ProductItem }) => {
-          const isActive = row.is_refund_allowed;
-          return h(
-            ElTag,
-            {
-              type: isActive ? 'success' : 'info',
-              size: 'small',
-              effect: 'light',
-            },
-            () => (isActive ? '是' : '否'),
-          );
-        },
+        default: ({ row }: { row: Api.ProductItem }) =>
+          renderChoiceTag(row.type, ruleTypeOptions),
       },
     },
     {
-      field: 'updated_at',
-      title: $t('products.updated_at'),
+      field: 'created_at',
+      title: $t('创建时间'),
       width: 140,
     },
     {

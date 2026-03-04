@@ -188,8 +188,14 @@ export function useColumns(): VxeTableGridOptions['columns'] {
       },
     },
     {
-      field: 'reason',
+      field: 'remark',
       title: '操作原因',
+      minWidth: 220,
+      showOverflow: 'tooltip',
+    },
+    {
+      field: 'error_message',
+      title: '失败原因',
       minWidth: 220,
       showOverflow: 'tooltip',
     },

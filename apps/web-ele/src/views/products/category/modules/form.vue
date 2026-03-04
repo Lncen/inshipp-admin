@@ -104,7 +104,7 @@ const [Drawer, drawerApi] = useVbenDrawer({
         // 设置明确的默认值
         formApi.setValues({
           name: '',
-          is_active: false,
+          is_active: true,
           parent: null,
         });
         titleSuffix.value = '';

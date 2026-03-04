@@ -14,7 +14,7 @@ export namespace Api {
     amount_display: string;
     balance_before: string;
     balance_after: string;
-    reference_id: string;
+    reference_no: string;
     remark: string;
     created_at: string;
   }

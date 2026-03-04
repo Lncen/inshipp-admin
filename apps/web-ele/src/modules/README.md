@@ -50,6 +50,19 @@ const imageSource = ref({
   usageType: 'cover',
 });
 
+// Props & Emits
+const props = defineProps({
+  modelValue: Boolean,
+  productId: {
+    type: String,
+    required: true,
+  },
+  categories: {
+    // 接收多级分类数据
+
+    default: () => [],
+  },
+});
 function openSinglePicker() {
   pickerRef.value?.open(imageSource.value);
 }
@@ -92,7 +105,7 @@ async function onConfirm(urls: string | string[]) {
     <p>已选详情图：{{ selectedImgs }}</p>
     <!-- 图片选择器 -->
     <!-- :multiple="false" 多选 -->
-  
+
     <ImagePickerDialog
       ref="pickerRef"
       v-model="imageDialogVisible"

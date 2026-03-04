@@ -7,22 +7,24 @@ import type { Api } from '#/api/products/products';
 
 import { onMounted, reactive, ref, watch } from 'vue';
 
-import { ColPage } from '@vben/common-ui';
+import { ColPage, useVbenModal } from '@vben/common-ui';
 import { Plus } from '@vben/icons';
 
 import { ElButton, ElLoading, ElMessage } from 'element-plus';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import { getCategories, getList, remove } from '#/api/products/products';
+import {
+  getCategories,
+  getDetail,
+  getList,
+  remove,
+} from '#/api/products/products';
 import { $t } from '#/locales';
 
 import { useColumns, useGridFormSchema } from './data';
+import Modals from './modules/edit.vue';
 import ProductCategoryTree from './modules/ProductCategoryTree.vue';
-import ProductEditDialog from './modules/ProductEditDialog.vue';
 
-// 弹窗
-const showEdit = ref(false);
-const productId = ref<string>();
 const categoriesDate = ref<Api.MenuItem[]>([]);
 // 当前选中的分类 ID
 const selectedCategoryId = ref<string>('');
@@ -76,7 +78,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
   } as VxeTableGridOptions<Api.Item>,
 });
 
-function onDelete(row: Api.ProductItem) {
+function onDelete(row: Api.Item) {
   // 1. 显示全局 loading（Element Plus 的加载遮罩）
   const loading = ElLoading.service({
     text: $t('ui.actionMessage.deleting', [row.name]),
@@ -101,13 +103,27 @@ function onDelete(row: Api.ProductItem) {
     });
 }
 
-async function onEdit(row: Api.ProductItem) {
-  productId.value = row.id;
-  showEdit.value = true;
+async function onEdit(row: Api.Item) {
+  if (!row.id) {
+    ElMessage.error('商品ID不存在，无法编辑');
+    return;
+  }
+  await getDetail(row.id)
+    .then((response) => {
+      modalApi
+        .setData({
+          initialData: response,
+          categories: categoriesDate.value,
+        })
+        .open();
+    })
+    .catch((_error) => {
+      ElMessage.error(`商品${row.name}获取失败`);
+    });
 }
 async function onCreate() {}
 
-function onActionClick(e: OnActionClickParams<Api.ProductItem>) {
+function onActionClick(e: OnActionClickParams<Api.Item>) {
   switch (e.code) {
     case 'delete': {
       onDelete(e.row);
@@ -176,10 +192,15 @@ function onRefresh() {
 
 // 组件挂载时获取分类数据
 onMounted(() => {
+  try {
+    getCategories();
+  } catch (error) {
+    console.error('获取分类数据失败:', error);
+  }
   fetchCategories();
 });
 
-const props = reactive({
+const page_props = reactive({
   leftCollapsedWidth: 2,
   leftCollapsible: false,
   leftMaxWidth: 20,
@@ -190,16 +211,19 @@ const props = reactive({
   splitHandle: false,
   splitLine: false,
 });
+
+// ------------编辑模态框-----------------
+const [Modal, modalApi] = useVbenModal({
+  // 连接抽离的组件
+  connectedComponent: Modals,
+});
 </script>
 
 <template>
-  <ColPage v-bind="props" auto-content-height>
+  <ColPage v-bind="page_props" auto-content-height>
     <template #left="{ isCollapsed }">
-      <div
-        v-if="!isCollapsed"
-        class="border-border bg-card mr-2 rounded-[var(--radius)] border p-2"
-      >
-        <h3 class="mb-3 font-bold">商品分类</h3>
+      <div v-if="!isCollapsed" class="bg-card mr-2 flex h-full flex-col">
+        <!-- <h3 class="mb-3 font-bold">商品分类</h3> -->
         <ProductCategoryTree
           :data="categoriesDate"
           v-model="selectedCategoryId"
@@ -216,12 +240,12 @@ const props = reactive({
         </template>
       </Grid>
     </div>
-    <!-- 右侧：产品列表 -->
+    <Modal width="80%" />
   </ColPage>
-
-  <ProductEditDialog
-    v-model="showEdit"
-    :product-id="productId || ''"
-    @saved="onRefresh"
-  />
 </template>
+
+<style scoped>
+.sidebar {
+  height: 86vh; /* 或固定高度，如 600px */
+}
+</style>
