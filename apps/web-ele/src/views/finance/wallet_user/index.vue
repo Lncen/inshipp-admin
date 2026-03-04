@@ -362,7 +362,7 @@ onMounted(() => {
     <AdminMoneyDialog
       v-model:visible="centerDialogVisible"
       :username="searchForm.username"
-      :idempotency_key="idempotency_key"
+      :idempotencykey="idempotency_key"
       @success="(username: string) => onRefresh(username)"
     />
   </Page>

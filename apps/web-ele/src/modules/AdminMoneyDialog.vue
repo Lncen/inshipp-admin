@@ -18,7 +18,7 @@ import { deduct, deposit, getUserByUsername } from '#/api/finance/wallet';
 const props = defineProps({
   visible: Boolean,
   username: { type: [Number, String], default: '' },
-  idempotencyKey: { type: [Number, String], default: '' },
+  idempotencykey: { type: [Number, String], default: '' },
 });
 
 const emit = defineEmits(['update:visible', 'success']);
@@ -120,7 +120,7 @@ const submitForm = async () => {
       username: form.value.username.trim(),
       amount: displayAmount.value,
       remark: form.value.remark.trim(),
-      idempotencyKey: props.idempotencyKey,
+      idempotency_key: props.idempotencykey,
     };
 
     if (isDeposit.value) {
