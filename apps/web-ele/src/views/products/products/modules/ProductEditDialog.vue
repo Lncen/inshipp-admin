@@ -279,6 +279,7 @@ async function onConfirm(urls: string | string[]) {
       if (response && response.url) {
         formData.images = [response.url]; // 确保是数组格式
       }
+      ElMessage.success('图片关联成功');
     } catch (error) {
       console.error('创建关联失败：', error);
       ElMessage.error('图片关联失败');

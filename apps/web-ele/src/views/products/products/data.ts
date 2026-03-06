@@ -5,8 +5,11 @@ import type { Api } from '#/api/products/products';
 import { h } from 'vue';
 
 import {
+  flagOptions,
   isClosedOptions,
   productStatusOptions,
+  productTypeOptions,
+  redeemTypeOptions,
   ruleTypeOptions,
   sourceTypeOptions,
 } from '#/api/products/products';
@@ -14,7 +17,7 @@ import { $t } from '#/locales';
 import { formatImageUrl } from '#/utils/formatImageUrl';
 import { renderChoiceTag } from '#/utils/renderChoiceTag';
 
-export function useGridFormSchema(): VbenFormSchema[] {
+export function useGridFormSchema(supplierSelectData: any): VbenFormSchema[] {
   return [
     {
       component: 'Input',
@@ -26,45 +29,96 @@ export function useGridFormSchema(): VbenFormSchema[] {
       fieldName: 'name',
       label: $t('products.name'),
     },
+
     {
-      component: 'Input',
-      fieldName: 'supplier',
+      component: 'Select',
+      fieldName: 'owner_sup',
       label: $t('products.supplier_name'),
-    },
-    {
-      component: 'Select',
-      fieldName: 'is_active',
-      label: $t('products.status'),
       componentProps: {
         placeholder: '请选择状态',
-        options: [
-          { label: '启用', value: true },
-          { label: '禁用', value: false },
-        ],
+        options: supplierSelectData,
+        props: { value: 'id', label: 'name' },
       },
     },
     {
       component: 'Select',
-      fieldName: 'has_stock',
-      label: $t('products.stock'),
+      fieldName: 'rule_type',
+      label: '规则类型',
       componentProps: {
         placeholder: '请选择状态',
-        options: [
-          { label: '有', value: true },
-          { label: '无', value: false },
-        ],
+        options: ruleTypeOptions,
       },
     },
     {
       component: 'Select',
-      fieldName: 'is_card_product',
-      label: $t('products.is_card_product'),
+      fieldName: 'is_closed',
+      label: '是否关闭下单',
       componentProps: {
         placeholder: '请选择状态',
-        options: [
-          { label: '是', value: true },
-          { label: '否', value: false },
-        ],
+        options: isClosedOptions,
+      },
+    },
+    {
+      component: 'Select',
+      fieldName: 'source_type',
+      label: '来源类型',
+      componentProps: {
+        placeholder: '请选择状态',
+        options: sourceTypeOptions,
+      },
+    },
+    {
+      component: 'Select',
+      fieldName: 'status',
+      label: '商品状态',
+      componentProps: {
+        placeholder: '请选择状态',
+        options: productStatusOptions,
+      },
+    },
+    {
+      component: 'Select',
+      fieldName: 'status',
+      label: '商品类型',
+      componentProps: {
+        placeholder: '请选择状态',
+        options: productTypeOptions,
+      },
+    },
+    {
+      component: 'Select',
+      fieldName: 'fulfillment_type',
+      label: '发货方式',
+      componentProps: {
+        placeholder: '请选择状态',
+        options: redeemTypeOptions,
+      },
+    },
+    {
+      component: 'Select',
+      fieldName: 'is_repeatable',
+      label: '是否支持重复购买',
+      componentProps: {
+        placeholder: '请选择状态',
+        options: flagOptions,
+      },
+    },
+    {
+      component: 'Select',
+      fieldName: 'can_refund',
+      label: '是否支持退款',
+      componentProps: {
+        placeholder: '请选择状态',
+        options: flagOptions,
+      },
+    },
+    {
+      component: 'Select',
+      fieldName: 'can_refund',
+      label: '是否支持退款',
+      componentProps: {
+        placeholder: '请选择状态',
+        options: flagOptions,
       },
     },
   ];
@@ -104,8 +158,8 @@ export function useColumns<T = Api.ProductItem>(
     },
     {
       field: 'name',
-      title: $t('products.name'),
       width: 150,
+      title: $t('products.name'),
     },
     {
       field: 'is_closed',
@@ -177,7 +231,6 @@ export function useColumns<T = Api.ProductItem>(
     {
       field: 'created_at',
       title: $t('创建时间'),
-      width: 140,
     },
     {
       align: 'center',

@@ -8,7 +8,6 @@ import type { Api } from '#/api/products/products';
 import { onMounted, reactive, ref, watch } from 'vue';
 
 import { ColPage, useVbenModal } from '@vben/common-ui';
-import { Plus } from '@vben/icons';
 
 import { ElButton, ElLoading, ElMessage } from 'element-plus';
 
@@ -19,6 +18,7 @@ import {
   getList,
   remove,
 } from '#/api/products/products';
+import { getSupSelectData } from '#/api/suppliers/suppliers';
 import { $t } from '#/locales';
 
 import { useColumns, useGridFormSchema } from './data';
@@ -29,15 +29,19 @@ const categoriesDate = ref<Api.MenuItem[]>([]);
 // 当前选中的分类 ID
 const selectedCategoryId = ref<string>('');
 const selectedCategoryPath = ref<string>('');
+// 供货商参数
+const supplierSelectData = ref<any>([]);
 // 修改类型定义，应该是商品数组而不是 ListResponse
 const isLoading = ref(false);
+const schemaData = ref();
 
 const [Grid, gridApi] = useVbenVxeGrid({
   showSearchForm: false,
   formOptions: {
-    schema: useGridFormSchema(),
+    schema: useGridFormSchema(supplierSelectData),
     submitOnChange: true,
   },
+
   gridOptions: {
     columns: useColumns(onActionClick),
     height: 'auto',
@@ -51,7 +55,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
       ajax: {
         query: async ({ page }, formValues) => {
           // 在查询参数中加入分类 ID
-          const params = {
+          schemaData.value = {
             page: page.currentPage,
             page_size: page.pageSize,
             ...(selectedCategoryId.value
@@ -59,8 +63,7 @@ const [Grid, gridApi] = useVbenVxeGrid({
               : {}),
             ...formValues,
           };
-          selectedCategoryId.value = '';
-          return await getList(params);
+          return await getList(schemaData.value);
         },
       },
     },
@@ -114,6 +117,7 @@ async function onEdit(row: Api.Item) {
         .setData({
           initialData: response,
           categories: categoriesDate.value,
+          supplierSelectData: supplierSelectData.value,
         })
         .open();
     })
@@ -121,7 +125,15 @@ async function onEdit(row: Api.Item) {
       ElMessage.error(`商品${row.name}获取失败`);
     });
 }
-async function onCreate() {}
+async function onCreate() {
+  modalApi
+    .setData({
+      initialData: {},
+      categories: categoriesDate.value,
+      supplierSelectData: supplierSelectData.value,
+    })
+    .open();
+}
 
 function onActionClick(e: OnActionClickParams<Api.Item>) {
   switch (e.code) {
@@ -185,6 +197,16 @@ watch(
   { immediate: false }, // 避免立即执行
 );
 
+async function getsupplierSelectData() {
+  await getSupSelectData()
+    .then((response) => {
+      supplierSelectData.value = response;
+    })
+    .catch((error) => {
+      console.error('获取供货商数据失败:', error);
+    });
+}
+
 // 刷新
 function onRefresh() {
   gridApi.query();
@@ -193,11 +215,11 @@ function onRefresh() {
 // 组件挂载时获取分类数据
 onMounted(() => {
   try {
-    getCategories();
+    fetchCategories();
+    getsupplierSelectData();
   } catch (error) {
     console.error('获取分类数据失败:', error);
   }
-  fetchCategories();
 });
 
 const page_props = reactive({
@@ -216,6 +238,9 @@ const page_props = reactive({
 const [Modal, modalApi] = useVbenModal({
   // 连接抽离的组件
   connectedComponent: Modals,
+  onClosed: () => {
+    onRefresh(); // 确保无论什么情况都刷新数据
+  },
 });
 </script>
 
@@ -240,7 +265,7 @@ const [Modal, modalApi] = useVbenModal({
         </template>
       </Grid>
     </div>
-    <Modal width="80%" />
+    <Modal />
   </ColPage>
 </template>
 

@@ -1,5 +1,7 @@
 import type { Recordable } from '@vben/types';
 
+import type { Api as BuyProductsApi } from '#/api/products/by_param';
+
 import { requestClient } from '#/api/request';
 
 export namespace Api {
@@ -56,35 +58,19 @@ export namespace Api {
     is_batch: number;
     can_refund: number;
     rule_type: number;
+    buy_params: BuyProductsApi.Item[];
 
     // ── 其他 ───────────────────────────────────
     sort: number;
-    input_fields_overridden: boolean;
+    input_fields_overridden: number;
 
     // ── 上游 ───────────────────────────────────
     owner_sup?: number;
-    params_template: params_template[];
+    params_template: undefined[];
 
     // ── 时间 ───────────────────────────────────
     created_at: string;
     updated_at: string;
-  }
-
-  export interface params_template {
-    id?: string | undefined;
-    supplier_id?: string | undefined;
-    code?: string | undefined;
-    key: string;
-    name: string;
-    type: number;
-    value: string;
-    verify: {
-      max: number;
-      min: number;
-    };
-    is_default: boolean;
-    description: string;
-    type_config: string;
   }
 
   // 编辑或创建字段（假设可编辑的字段）
@@ -205,6 +191,12 @@ export const productStatusOptions = [
 export const sourceTypeOptions = [
   { label: '供应商对接', value: 1 },
   { label: '本地商品', value: 2 },
+  { label: '跨境进口', value: 3 },
+  { label: '用户生成', value: 4 },
+  { label: '联营合作', value: 5 },
+  { label: 'API对接', value: 6 },
+  { label: '手动录入', value: 7 },
+  { label: '分销商品', value: 8 },
 ] as const;
 
 // 5. 是/否 (FlagChoice)
@@ -217,16 +209,6 @@ export const flagOptions = [
 export const isClosedOptions = [
   { label: '否', value: 1, type: 'success' },
   { label: '是', value: 2, type: 'danger' },
-] as const;
-
-// 6. 输入类型 (InputType)
-export const inputTypeOptions = [
-  { label: '文本', value: 10 },
-  { label: '数字', value: 20 },
-  { label: '下拉选择', value: 30 },
-  { label: '多选', value: 40 },
-  { label: '多行文本', value: 50 },
-  { label: 'URL 链接', value: 61 },
 ] as const;
 
 // 7. 规则类型 (RuleType)
