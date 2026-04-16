@@ -40,7 +40,7 @@ export function useFormSchema(): VbenFormSchema[] {
         ],
         optionType: 'button',
       },
-      defaultValue: false,
+
       fieldName: 'is_active',
       label: $t('system.role.status'),
     },
@@ -55,16 +55,6 @@ export function useFormSchema(): VbenFormSchema[] {
       formItemClass: 'items-start',
       label: $t('system.role.setPermissions'),
       modelPropName: 'modelValue',
-    },
-  ];
-}
-
-export function useGridFormSchema(): VbenFormSchema[] {
-  return [
-    {
-      component: 'Input',
-      fieldName: 'name',
-      label: $t('system.role.roleName'),
     },
   ];
 }

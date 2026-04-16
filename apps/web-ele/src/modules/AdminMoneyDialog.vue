@@ -10,10 +10,10 @@ import {
   ElFormItem,
   ElInput,
   ElMessage,
-  ElTag,
 } from 'element-plus';
 
-import { deduct, deposit, getUserByUsername } from '#/api/finance/wallet';
+import { adjust } from '#/api/finance/wallet_user';
+
 // props & emit
 const props = defineProps({
   visible: Boolean,
@@ -22,15 +22,6 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['update:visible', 'success']);
-
-// 防抖
-const debounce = (fn, delay = 500) => {
-  let timer = null;
-  return (...args) => {
-    clearTimeout(timer);
-    timer = setTimeout(() => fn(...args), delay);
-  };
-};
 
 const dialog = reactive({ visible: false });
 const loading = ref(false);
@@ -50,7 +41,6 @@ const userInfo = ref({
 });
 
 // 计算属性保持不变
-const isDeposit = computed(() => Number(form.value.amount) > 0);
 const displayAmount = computed(() =>
   Math.abs(form.value.amount || 0).toFixed(8),
 );
@@ -61,8 +51,6 @@ const amountType = computed(() => {
     return { text: '请输入金额', class: 'info' };
   if (n > 0) return { text: '将为用户充值', class: 'success' };
 
-  const balance = Number(userInfo.value.balance);
-  if (balance + n < 0) return { text: '余额不足', class: 'warning' };
   return { text: '将从用户扣款', class: 'danger' };
 });
 
@@ -83,33 +71,6 @@ const rules = {
   ],
 };
 
-// 核心：防抖查询用户信息
-const fetchUserInfo = async (username) => {
-  if (!username?.trim()) {
-    userInfo.value = { username: '', balance: '0.00', status: '' };
-    return;
-  }
-  loadingUserInfo.value = true;
-  try {
-    const res = await getUserByUsername({ username: username.trim() });
-    userInfo.value = {
-      username: res.username || '未知用户',
-      balance: res.balance ?? '0.00',
-      status: res.status,
-    };
-  } catch {
-    userInfo.value = {
-      username: '异常用户',
-      balance: '-.--',
-      status: '异常',
-    };
-  } finally {
-    loadingUserInfo.value = false;
-  }
-};
-
-const debouncedFetchUserInfo = debounce(fetchUserInfo, 500);
-
 // 提交逻辑（不变，只是用了 displayAmount）
 const submitForm = async () => {
   if (!(await formRef.value?.validate())) return;
@@ -122,14 +83,8 @@ const submitForm = async () => {
       remark: form.value.remark.trim(),
       idempotency_key: props.idempotencykey,
     };
-
-    if (isDeposit.value) {
-      await deposit(payload);
-      ElMessage.success(`充值成功 +${displayAmount.value}`);
-    } else {
-      await deduct(payload);
-      ElMessage.success(`扣款成功 -${displayAmount.value}`);
-    }
+    await adjust(payload);
+    ElMessage.success(`成功 +${displayAmount.value}`);
 
     // 提交成功后，触发 success 事件传递username参数
     // 关闭弹窗
@@ -158,35 +113,6 @@ watch(
     dialog.visible = val; // 这一行必须有！
   },
   { immediate: true },
-);
-
-// 2. dialog.visible 变化时通知父组件（v-model 语法糖）
-watch(
-  () => dialog.visible,
-  (val) => {
-    emit('update:visible', val);
-
-    // 弹窗打开时：填充 username 并查询用户信息
-    if (val) {
-      form.value.username = props.username ? String(props.username) : '';
-      if (form.value.username) {
-        debouncedFetchUserInfo(form.value.username);
-      } else {
-        userInfo.value = { username: '', balance: '0.00', status: '异常' };
-      }
-    } else {
-      // 关闭时清理
-      handleClose();
-    }
-  },
-);
-
-// 3. 用户手动输入用户名时实时查询
-watch(
-  () => form.value.username,
-  (newVal) => {
-    debouncedFetchUserInfo(newVal);
-  },
 );
 </script>
 
@@ -217,28 +143,6 @@ watch(
             <el-icon v-if="loadingUserInfo"><Loading /></el-icon>
           </template>
         </ElInput>
-      </ElFormItem>
-
-      <ElFormItem label="用户信息">
-        <div>
-          <ElTag type="success" effect="plain" v-if="userInfo.username">
-            当前余额: <strong>¥{{ userInfo.balance }}</strong>
-          </ElTag>
-          <ElTag type="danger" effect="plain" v-if="!userInfo.username">
-            <strong>请输入用户名</strong>
-          </ElTag>
-          <span
-            style="margin-left: 12px; color: #656"
-            v-show="userInfo.username ? true : false"
-          >
-            <ElTag
-              :type="userInfo.status === '正常' ? 'success' : 'danger'"
-              effect="plain"
-            >
-              账户状态: <strong>{{ userInfo.status }} </strong>
-            </ElTag>
-          </span>
-        </div>
       </ElFormItem>
 
       <ElFormItem label="调账金额" prop="amount">

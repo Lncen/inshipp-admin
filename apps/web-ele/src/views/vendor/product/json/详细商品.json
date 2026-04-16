@@ -1,0 +1,45 @@
+{
+  "code": 0,
+  "message": "ok",
+  "data": {
+    "id": 3584,
+    "is_card_code": 2,
+    "buy_min_limit": 200,
+    "buy_max_limit": 200,
+    "is_repeat": 1,
+    "is_batch": 1,
+    "particulars": "<p><span style=\"font-weight: bolder;\">纯宝妈兼职接单&nbsp;</span><span style=\"font-weight: bolder;\"><span style=\"color: rgb(73, 80, 87); font-family: Roboto, sans-serif;\">真实活跃的私人团队手动点赞</span></span></p><p><span style=\"font-weight: bolder;\"><span style=\"color: rgb(73, 80, 87); font-family: Roboto, sans-serif;\">堪比投放抖+1人1号1IP</span></span></p><p><span style=\"font-weight: bolder;\"><span style=\"font-size: 12pt;\">黄车，问题单自动退，12-24h完成</span><span style=\"font-size: 14px;\"><br/></span></span></p><p><span style=\"font-weight: bolder; -webkit-tap-highlight-color: transparent; appearance: none; backface-visibility: hidden; font-family: 微软雅黑, Helvetica, sans-serif;\"><span style=\"font-weight: bolder;\">订单</span>完成后<font style=\"color: rgb(194, 79, 74); -webkit-tap-highlight-color: transparent; appearance: none; backface-visibility: hidden;\">售后48小时</font></span></p><p><span style=\"font-weight: bolder; -webkit-tap-highlight-color: transparent; appearance: none; backface-visibility: hidden; font-family: 微软雅黑, Helvetica, sans-serif;\"><font style=\"color: rgb(194, 79, 74); -webkit-tap-highlight-color: transparent; appearance: none; backface-visibility: hidden;\">&nbsp;<i>掉过初始无售后</i></span></font></span></p><p><span style=\"font-weight: bolder; -webkit-tap-highlight-color: transparent; appearance: none; backface-visibility: hidden; font-family: 微软雅黑, Helvetica, sans-serif;\"><font style=\"color: rgb(194, 79, 74); -webkit-tap-highlight-color: transparent; appearance: none; backface-visibility: hidden;\"></font></span></p><p>多订单售后最后一条</p><p><br/></p>",
+    "description": "",
+    "goods_category_name": "抖音",
+    "buy_rate": 10,
+    "create_time": 1763790187,
+    "GoodsPrice": "0.01500000",
+    "price": 0.015,
+    "CanTui": "",
+    "tui_status": "",
+    "ParamsTemplate": "[{\"description\":\"作品链接\",\"is_default\":false,\"key\":\"al\",\"name\":\"链接\",\"type\":1,\"type_config\":\"\",\"verify\":{\"max\":-1,\"min\":1}}]",
+    "buy_params": [
+      {
+        "description": "作品链接",
+        "is_default": false,
+        "key": "al",
+        "name": "链接",
+        "type": 1,
+        "type_config": "",
+        "verify": {
+          "max": 0,
+          "min": 1
+        }
+      }
+    ],
+    "refund_status": null,
+    "name": "表弟右手200点赞",
+    "goodsThumb": "/storage/image/202511/1763790173429694999.png",
+    "image_urls": ["/storage/image/202511/1763790173429694999.png"],
+    "is_close": 2,
+    "goods_category_id": 282,
+    "price_show_num": 0,
+    "stock": -1,
+    "unit": ""
+  }
+}

@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<!-- <script setup lang="ts">
 import { nextTick, onUnmounted, reactive, ref, watch } from 'vue';
 
 import {
@@ -535,4 +535,4 @@ async function onConfirm(urls: string | string[]) {
   font-size: 24px;
   color: #888;
 }
-</style>
+</style> -->

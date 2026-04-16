@@ -45,18 +45,10 @@ async function getList(params?: Api.ListQueryParams) {
 
 /**
  * 扣款
- * @param data 角色数据
+ * @param data 调账
  */
-async function deduct(data: Recordable<any>) {
-  return requestClient.post('admin/deduct', data);
+async function adjust(data: Recordable<any>) {
+  return requestClient.post('admin/users/adjust-balance', data);
 }
 
-/**
- * 存款
- * @param data 角色数据
- */
-async function deposit(data: Recordable<any>) {
-  return requestClient.post('admin/deposit', data);
-}
-
-export { deduct, deposit, getList };
+export { adjust, getList };

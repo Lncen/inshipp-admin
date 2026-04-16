@@ -7,7 +7,7 @@ import { requestClient } from '#/api/request';
 export namespace Api {
   // 会员等级接口定义
   export interface Item {
-    id?: string | undefined;
+    id?: null | string;
     name: string;
     source_type: number;
     source_type_display: string;
@@ -27,21 +27,23 @@ export namespace Api {
 
   export interface ProductItem {
     // ── 基础字段 ───────────────────────────────
-    id?: string | undefined;
+    id?: null | string;
     name: string;
     after_sale_rules: string;
     description: string;
     unit: string;
 
     // ── 分类 ───────────────────────────────────
-    category: number | undefined;
+    category: null | number;
 
     // ── 价格（注意：Decimal 在 JSON 中为 string）────────
     cost_price: string; // e.g. "99.99000000"
-    price: string; // e.g. "199.99000000"
     purchase_step: string; // e.g. "1.0000"
     price_display_precision: number;
     images: string[];
+    item_coefficient: null | number;
+    fixed_price: null | number;
+    loss_price: number;
 
     // ── 库存与购买限制 ───────────────────────────
     stock: number; // -1 表示无限库存
@@ -65,10 +67,11 @@ export namespace Api {
     input_fields_overridden: number;
 
     // ── 上游 ───────────────────────────────────
-    owner_sup?: number;
+    vendor_id?: string;
+    vendor_sku_id?: null | number;
     params_template: undefined[];
 
-    // ── 时间 ───────────────────────────────────
+    // ── 时间 ───────────────────────────────────32
     created_at: string;
     updated_at: string;
   }
@@ -207,14 +210,15 @@ export const flagOptions = [
 
 // 5. 是/否关闭下单 (FlagChoice)
 export const isClosedOptions = [
-  { label: '否', value: 1, type: 'success' },
-  { label: '是', value: 2, type: 'danger' },
+  { label: '否', value: 1, type: 'danger' },
+  { label: '是', value: 2, type: 'success' },
 ] as const;
 
 // 7. 规则类型 (RuleType)
 export const ruleTypeOptions = [
   { label: '固定', value: 1 },
-  { label: '百分比', value: 2 },
+  { label: '定价系数', value: 2 },
+  { label: '分类系数', value: 3 },
 ] as const;
 
 export {

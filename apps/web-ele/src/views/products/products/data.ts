@@ -32,7 +32,7 @@ export function useGridFormSchema(supplierSelectData: any): VbenFormSchema[] {
 
     {
       component: 'Select',
-      fieldName: 'owner_sup',
+      fieldName: 'vendor',
       label: $t('products.supplier_name'),
       componentProps: {
         placeholder: '请选择状态',
@@ -97,7 +97,7 @@ export function useGridFormSchema(supplierSelectData: any): VbenFormSchema[] {
     {
       component: 'Select',
       fieldName: 'is_repeatable',
-      label: '是否支持重复购买',
+      label: '可以重复购买',
       componentProps: {
         placeholder: '请选择状态',
         options: flagOptions,
@@ -163,7 +163,7 @@ export function useColumns<T = Api.ProductItem>(
     },
     {
       field: 'is_closed',
-      title: $t('关闭下单'),
+      title: $t('允许下单'),
       width: 80,
       align: 'center',
       slots: {
@@ -178,7 +178,7 @@ export function useColumns<T = Api.ProductItem>(
       align: 'center',
       slots: {
         default: ({ row }: { row: Api.ProductItem }) =>
-          renderChoiceTag(row.is_closed, sourceTypeOptions),
+          renderChoiceTag(row.source_type, sourceTypeOptions),
       },
     },
     {
@@ -188,37 +188,15 @@ export function useColumns<T = Api.ProductItem>(
       align: 'center',
       slots: {
         default: ({ row }: { row: Api.ProductItem }) =>
-          renderChoiceTag(row.is_closed, productStatusOptions),
+          renderChoiceTag(row.status, productStatusOptions),
       },
-    },
-    {
-      field: 'profit',
-      title: $t('products.profit'),
-      width: 100,
-      slots: {
-        default: ({ row }: { row: Api.ProductItem }) => {
-          const price = Number(row.price) || 0;
-          const costPrice = Number(row.cost_price) || 0;
-          const calculatedValue = price - costPrice;
-          return calculatedValue.toFixed(8);
-        },
-      },
-    },
-    {
-      field: 'price',
-      title: $t('products.price'),
-      width: 100,
     },
     {
       field: 'cost_price',
       title: $t('products.cost_price'),
       width: 100,
     },
-    {
-      field: 'stock',
-      title: $t('products.stock'),
-      width: 80,
-    },
+
     {
       field: 'rule_type',
       title: $t('结算规则'),

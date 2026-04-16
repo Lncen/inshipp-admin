@@ -134,11 +134,10 @@ const [Grid, gridApi] = useVbenVxeGrid({
 const centerDialogVisible = ref(false);
 const idempotency_key = ref<string>('');
 const onCreate = () => {
-  // if (!searchForm.value.username?.trim()) {
-  //   ElMessage.warning('请先输入用户名');
-  //   return;
-  // }
-  idempotency_key.value = crypto.randomUUID();
+  const idekey = crypto.randomUUID();
+  const timestamp = new Date().toISOString();
+  const idempotencykey = `${timestamp}-adjust-${idekey}`;
+  idempotency_key.value = idempotencykey;
   centerDialogVisible.value = true;
 };
 
@@ -364,6 +363,7 @@ onMounted(() => {
       :username="searchForm.username"
       :idempotencykey="idempotency_key"
       @success="(username: string) => onRefresh(username)"
+      @close="() => (centerDialogVisible = false)"
     />
   </Page>
 </template>

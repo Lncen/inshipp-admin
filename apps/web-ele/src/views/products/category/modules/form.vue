@@ -27,22 +27,6 @@ const schema: VbenFormSchema[] = [
       .string()
       .min(2, $t('ui.formRules.minLength', [$t('system.menu.menuName'), 2]))
       .max(30, $t('ui.formRules.maxLength', [$t('system.menu.menuName'), 30])),
-    // .refine(
-    //   async (value: string) => {
-    //     // 只有在创建新菜单时（没有id）才验证名称唯一性
-    //     if (!formData.value?.id) {
-    //       return !(await isMenuNameExists(value, formData.value?.id));
-    //     }
-    //     // 编辑现有菜单时跳过唯一性验证
-    //     return true;
-    //   },
-    //   (value) => ({
-    //     message: $t('ui.formRules.alreadyExists', [
-    //       $t('system.menu.menuName'),
-    //       value,
-    //     ]),
-    //   }),
-    // ),
   },
   {
     component: 'ApiTreeSelect',

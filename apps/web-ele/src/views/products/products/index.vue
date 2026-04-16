@@ -12,13 +12,8 @@ import { ColPage, useVbenModal } from '@vben/common-ui';
 import { ElButton, ElLoading, ElMessage } from 'element-plus';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import {
-  getCategories,
-  getDetail,
-  getList,
-  remove,
-} from '#/api/products/products';
-import { getSupSelectData } from '#/api/suppliers/suppliers';
+import { getCategories, getList, remove } from '#/api/products/products';
+import { getList as getSupSelectData } from '#/api/vendor/vendor';
 import { $t } from '#/locales';
 
 import { useColumns, useGridFormSchema } from './data';
@@ -111,24 +106,19 @@ async function onEdit(row: Api.Item) {
     ElMessage.error('商品ID不存在，无法编辑');
     return;
   }
-  await getDetail(row.id)
-    .then((response) => {
-      modalApi
-        .setData({
-          initialData: response,
-          categories: categoriesDate.value,
-          supplierSelectData: supplierSelectData.value,
-        })
-        .open();
+
+  modalApi
+    .setData({
+      product_id: row.id,
+      categories: categoriesDate.value,
+      supplierSelectData: supplierSelectData.value,
     })
-    .catch((_error) => {
-      ElMessage.error(`商品${row.name}获取失败`);
-    });
+    .open();
 }
 async function onCreate() {
   modalApi
     .setData({
-      initialData: {},
+      product_id: undefined,
       categories: categoriesDate.value,
       supplierSelectData: supplierSelectData.value,
     })
@@ -200,7 +190,7 @@ watch(
 async function getsupplierSelectData() {
   await getSupSelectData()
     .then((response) => {
-      supplierSelectData.value = response;
+      supplierSelectData.value = response.results;
     })
     .catch((error) => {
       console.error('获取供货商数据失败:', error);
@@ -238,8 +228,13 @@ const page_props = reactive({
 const [Modal, modalApi] = useVbenModal({
   // 连接抽离的组件
   connectedComponent: Modals,
-  onClosed: () => {
-    onRefresh(); // 确保无论什么情况都刷新数据
+
+  onOpenChange: (isOpen) => {
+    if (!isOpen) {
+      setTimeout(() => {
+        gridApi.query();
+      }, 300); // 延迟300ms执行
+    }
   },
 });
 </script>

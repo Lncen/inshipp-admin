@@ -19,12 +19,13 @@ export function useFormSchema(): VbenFormSchema[] {
       label: $t('users.memberLevel.id'),
       componentProps: {
         readonly: true,
+        disabled: true,
       },
     },
     {
       component: 'Input',
-      fieldName: 'level_id',
-      label: $t('users.memberLevel.levelId'),
+      fieldName: 'level', // API 使用 level_name（对应模型的 name 字段）
+      label: $t('用户等级'),
       rules: 'required',
     },
     {
@@ -34,29 +35,22 @@ export function useFormSchema(): VbenFormSchema[] {
       rules: 'required',
     },
     {
-      component: 'InputNumber',
-      fieldName: 'required_score',
-      label: $t('users.memberLevel.requiredScore'),
-      rules: 'required',
+      component: 'Input',
+      fieldName: 'discount_rate',
+      label: $t('折扣系数'),
       componentProps: {
-        min: 0,
-        precision: 0,
-        style: 'width: 100%',
+        readonly: true,
       },
     },
     {
-      component: 'InputNumber',
-      fieldName: 'discount_rate',
-      label: $t('users.memberLevel.discountRate'),
-      rules: 'required',
+      component: 'Input',
+      fieldName: 'growth_threshold',
+      label: $t('成长值门槛'),
       componentProps: {
-        min: 0,
-        step: 0.01,
-        precision: 2,
-        style: 'width: 100%',
-        placeholder: '例如：0.95 表示 9.5 折',
+        readonly: true,
       },
     },
+
     {
       component: 'RadioGroup',
       fieldName: 'is_active',
@@ -73,12 +67,9 @@ export function useFormSchema(): VbenFormSchema[] {
     },
     {
       component: 'Input',
-      fieldName: 'description',
-      label: $t('users.memberLevel.description'),
-      componentProps: {
-        type: 'textarea',
-        rows: 4,
-      },
+      fieldName: 'description', // API 使用 level_name（对应模型的 name 字段）
+      label: $t('描述'),
+      rules: 'required',
     },
   ];
 }
@@ -123,7 +114,7 @@ export function useColumns<T = Api.Item>(
       fixed: 'left',
     },
     {
-      field: 'level_id',
+      field: 'level',
       title: $t('users.memberLevel.levelId'),
       width: 100,
     },
@@ -131,14 +122,6 @@ export function useColumns<T = Api.Item>(
       field: 'name',
       title: $t('users.memberLevel.levelName'),
       width: 160,
-    },
-    {
-      field: 'required_score',
-      title: $t('users.memberLevel.requiredScore'),
-      width: 140,
-      formatter: ({ cellValue }) => {
-        return cellValue ?? '-';
-      },
     },
     {
       field: 'discount_rate',

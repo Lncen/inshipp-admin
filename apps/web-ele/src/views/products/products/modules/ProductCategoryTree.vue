@@ -38,7 +38,7 @@ const handleNodeClick = (data: Api.MenuItem) => {
         node-key="id"
         :props="{ label: 'name', children: 'children' }"
         :default-expand-all="true"
-        :expand-on-click-node="false"
+        :expand-on-click-node="true"
         :loading="props.loading"
         :disabled="props.disabled"
         @node-click="handleNodeClick"

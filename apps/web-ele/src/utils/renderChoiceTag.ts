@@ -57,6 +57,7 @@ export const renderChoiceTag = (
 
 // import type { OnActionClickFn, VxeTableGridOptions } from '#/adapter/vxe-table';
 // import type { Api } from '#/api/products/products';
+// import { renderChoiceTag } from '#/utils/renderChoiceTag';
 
 // // 2. 商品类型 (ProductType)
 // export const productTypeOptions = [

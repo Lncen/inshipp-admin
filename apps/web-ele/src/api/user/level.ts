@@ -49,7 +49,7 @@ export namespace Api {
  * 获取列表数据
  */
 async function getList(params?: Api.QueryParams) {
-  return requestClient.get<Array<Api.Item>>('admin/levels', {
+  return requestClient.get<Array<Api.Item>>('user_level', {
     params,
   });
 }
@@ -59,7 +59,7 @@ async function getList(params?: Api.QueryParams) {
  * @param data 数据
  */
 async function create(data: Recordable<any>) {
-  return requestClient.post('admin/levels', data);
+  return requestClient.post('user_level', data);
 }
 
 /**
@@ -69,7 +69,7 @@ async function create(data: Recordable<any>) {
  * @param data 数据
  */
 async function update(id: string, data: Recordable<any>) {
-  return requestClient.put(`admin/levels/${id}`, data);
+  return requestClient.put(`user_level/${id}`, data);
 }
 
 /**
@@ -77,7 +77,7 @@ async function update(id: string, data: Recordable<any>) {
  * @param id ID
  */
 async function remove(id: Api.Item['id']) {
-  return requestClient.delete(`admin/levels/${id}`);
+  return requestClient.delete(`user_level/${id}`);
 }
 
 export { create, getList, remove, update };
