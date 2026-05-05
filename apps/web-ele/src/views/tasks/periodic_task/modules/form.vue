@@ -22,6 +22,7 @@ import {
   ElSelect,
   ElSwitch,
   ElText,
+  ElTooltip,
 } from 'element-plus';
 
 import { useVbenForm } from '#/adapter/form';
@@ -49,7 +50,7 @@ const DEFAULT_TASK_DATA = {
   routing_key: '',
   headers: '{}',
   priority: 0,
-  expires: '',
+  expires: undefined,
   expire_seconds: '',
 
   start_time: '',
@@ -226,18 +227,25 @@ const onEdit = () => {
           </ElFormItem>
         </ElCol>
         <ElCol :span="12">
-          <ElFormItem label="任务名">
+          <ElFormItem label="执行函数">
             <ElSelect
               v-model="formData.task"
-              placeholder="Select"
+              placeholder="请选择执行函数"
               style="width: 240px"
             >
               <ElOption
                 v-for="item in taskConfig.tasks"
-                :key="item"
-                :label="item"
-                :value="item"
-              />
+                :key="item.name"
+                :label="item.name"
+                :value="item.name"
+              >
+                <ElTooltip
+                  :content="item.description || item.name"
+                  placement="right"
+                >
+                  <span>{{ item.name }}</span>
+                </ElTooltip>
+              </ElOption>
             </ElSelect>
           </ElFormItem>
         </ElCol>
@@ -245,6 +253,11 @@ const onEdit = () => {
         <ElCol :span="12">
           <ElFormItem label="启用状态">
             <ElSwitch v-model="formData.enabled" />
+          </ElFormItem>
+        </ElCol>
+        <ElCol :span="8">
+          <ElFormItem label="仅执行一次">
+            <ElSwitch v-model="formData.one_off" />
           </ElFormItem>
         </ElCol>
       </ElRow>
@@ -261,7 +274,7 @@ const onEdit = () => {
           <ElRadio value="clocked">定时</ElRadio>
         </ElRadioGroup>
       </ElFormItem>
-      <ElFormItem label="时间" required>
+      <ElFormItem label="执行时机" required>
         <!-- Interval 调度 -->
 
         <div class="input-group">
@@ -305,18 +318,12 @@ const onEdit = () => {
         />
       </ElFormItem>
       <ElRow :gutter="24">
-        <ElCol :span="8">
-          <ElFormItem label="仅执行一次">
-            <ElSwitch v-model="formData.one_off" />
-          </ElFormItem>
-        </ElCol>
-
         <ElCol :span="10">
           <ElFormItem label="上次执行时间:">
             <ElText>{{ formData.last_run_at }}</ElText>
           </ElFormItem>
         </ElCol>
-        <ElCol :span="6">
+        <ElCol :span="10">
           <ElFormItem label="总运行次数:">
             <ElText>{{ formData.total_run_count }}</ElText>
           </ElFormItem>

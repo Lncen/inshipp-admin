@@ -68,7 +68,7 @@ function onActionClick(e: OnActionClickParams<Api.Item>) {
     // 供应商产品页面
     case 'product': {
       router.push({
-        name: 'vendorProduct',
+        name: 'vendor-products',
         query: { vendor_id: e.row.id },
       });
       break;

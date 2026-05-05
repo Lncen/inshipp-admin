@@ -2,16 +2,32 @@ import { requestClient } from '#/api/request';
 
 export namespace Api {
   export interface Item {
-    id?: number;
+    id?: number | undefined;
     name: string;
-    level: number;
     description: string;
+    is_default: boolean;
+    status: number;
+    valid_period: [Date, Date] | undefined;
     created_at: string;
     updated_at: string;
+    valid_period_status: string;
+    rules: Api.Rule[];
+  }
+
+  export interface Rule {
+    id?: number;
+    level: number;
+    name: string;
+    discount_rate: number;
   }
 }
 
-const path = 'user-level';
+const path = 'price-templates';
+
+const statusOptions = [
+  { label: '启用', value: 1, type: 'success' },
+  { label: '禁用', value: 2, type: 'danger' },
+];
 
 /**
  * 获取列表数据
@@ -24,6 +40,21 @@ async function getList(params?: {
   return requestClient.get<Array<Api.Item>>(path, {
     params,
   });
+}
+
+/**
+ * 获取详情
+ * @param id ID
+ */
+async function getDetail(id: number) {
+  return requestClient.get<Api.Item>(`${path}/${id}`);
+}
+
+/**
+ * 获取选择框数据
+ */
+async function getTemplateSelect() {
+  return requestClient.get<Api.Item>(`${path}/${'list_select'}`);
 }
 
 /**
@@ -52,8 +83,12 @@ async function remove(id: number) {
   return requestClient.delete(`${path}/${id}`);
 }
 
-async function getUserLevelSelect() {
-  return requestClient.get<Api.Item>('user-level-select');
-}
-
-export { create, getList, getUserLevelSelect, remove, update };
+export {
+  create,
+  getDetail,
+  getList,
+  getTemplateSelect,
+  remove,
+  statusOptions,
+  update,
+};

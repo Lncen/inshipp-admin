@@ -14,6 +14,12 @@ import { $t } from '#/locales';
 export function useSchema(): VbenFormSchema[] {
   return [
     {
+      component: 'Input',
+      fieldName: 'name',
+      label: $t('users.memberLevel.levelName'),
+      rules: 'required', // 添加 required 规则 必填
+    },
+    {
       component: 'ApiSelect',
       componentProps: {
         allowClear: true,

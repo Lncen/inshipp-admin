@@ -158,7 +158,7 @@ export function useColumns<T = Api.ProductItem>(
     },
     {
       field: 'name',
-      width: 150,
+
       title: $t('products.name'),
     },
     {
@@ -172,16 +172,6 @@ export function useColumns<T = Api.ProductItem>(
       },
     },
     {
-      field: 'source_type',
-      title: $t('产品来源'),
-      width: 100,
-      align: 'center',
-      slots: {
-        default: ({ row }: { row: Api.ProductItem }) =>
-          renderChoiceTag(row.source_type, sourceTypeOptions),
-      },
-    },
-    {
       field: 'status',
       title: $t('产品状态'),
       width: 100,
@@ -192,9 +182,19 @@ export function useColumns<T = Api.ProductItem>(
       },
     },
     {
+      field: 'source_type',
+      title: $t('产品来源'),
+      width: 100,
+      align: 'center',
+      slots: {
+        default: ({ row }: { row: Api.ProductItem }) =>
+          renderChoiceTag(row.source_type, sourceTypeOptions),
+      },
+    },
+
+    {
       field: 'cost_price',
       title: $t('products.cost_price'),
-      width: 100,
     },
 
     {

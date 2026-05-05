@@ -22,7 +22,7 @@ export namespace Api {
     routing_key: string; // 任务路由
     headers: string; // 任务头
     priority: number; // 任务优先级
-    expires: string; // 任务过期时间
+    expires: string | undefined; // 任务过期时间
     expire_seconds: string; // 任务过期秒数
 
     start_time: string; // 任务开始时间

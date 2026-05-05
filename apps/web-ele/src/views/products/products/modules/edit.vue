@@ -66,7 +66,6 @@ const BUY_PARAMS_TEMPLATE = {
 
 // 默认数据对象
 const DEFAULT_DATA = {
-  id: null, // 修改为数值类型
   name: '',
   after_sale_rules: '',
   description: '',
@@ -74,11 +73,11 @@ const DEFAULT_DATA = {
   category: null, // 使用 null 而不是 undefined
   images: [],
 
-  vendor_id: null,
+  vendor_id: undefined,
   vendor_sku_id: null,
 
-  cost_price: 0,
-  purchase_step: '1.0000',
+  cost_price: '',
+  purchase_step: 1,
   price_display_precision: 0,
   item_coefficient: null,
   fixed_price: null,
@@ -364,7 +363,7 @@ const validatePricingRule = (): boolean => {
       </ElCol>
       <ElCol :span="6">
         <ElFormItem label="商品编号" label-width="10px">
-          <ElInput disabled v-model="buyParams.product" />
+          <ElInput disabled v-model="formData.id" />
         </ElFormItem>
       </ElCol>
 
@@ -404,7 +403,7 @@ const validatePricingRule = (): boolean => {
         <ElFormItem label="最大购买量" label-width="100px">
           <ElInputNumber
             v-model="buyParams.validate_max"
-            :min="1"
+            :min="0"
             :max="1000000"
             style="width: 100%"
             :precision="0"
@@ -570,7 +569,7 @@ const validatePricingRule = (): boolean => {
           </ElButton>
           <ElDivider
             content-position="left"
-            style="margin-top: 1px; margin-bottom: 6px"
+            style="margin-top: 1px; margin-bottom: 1px"
           >
             <ElText>供货商</ElText>
           </ElDivider>
@@ -582,6 +581,7 @@ const validatePricingRule = (): boolean => {
               :value="item.id"
             />
           </ElSelect>
+
           <ElFormItem label="商品上游编号">
             <ElInput
               disabled
@@ -592,9 +592,9 @@ const validatePricingRule = (): boolean => {
 
           <ElDivider
             content-position="left"
-            style="margin-top: 1px; margin-bottom: 6px"
+            style="margin-top: 10px; margin-bottom: 13px"
           >
-            <ElText>下单参数</ElText>
+            <ElText style="">下单参数</ElText>
           </ElDivider>
 
           <ElFormItem v-for="item in formData.buy_params" :key="item.id">
@@ -657,22 +657,20 @@ const validatePricingRule = (): boolean => {
             </ElFormItem>
           </ElCol>
           <ElCol :span="8">
-            <ElForm>
-              <ElFormItem>
-                <div style="margin-top: 4px">
-                  <ElText>创建: {{ formData.created_at }}</ElText>
-                </div>
-                <div style="margin-top: 4px">
-                  <ElText>更新: {{ formData.updated_at }}</ElText>
-                </div>
-                <div style="margin-top: 4px">
-                  <ElText>
-                    在本地编辑过吗:
-                    {{ formData.input_fields_overridden === 1 ? ' 是' : ' 否' }}
-                  </ElText>
-                </div>
-              </ElFormItem>
-            </ElForm>
+            <ElFormItem>
+              <div style="margin-top: 4px">
+                <ElText>创建: {{ formData.created_at }}</ElText>
+              </div>
+              <div style="margin-top: 4px">
+                <ElText>更新: {{ formData.updated_at }}</ElText>
+              </div>
+              <div style="margin-top: 4px">
+                <ElText>
+                  在本地编辑过吗:
+                  {{ formData.input_fields_overridden === 1 ? ' 是' : ' 否' }}
+                </ElText>
+              </div>
+            </ElFormItem>
           </ElCol>
         </ElRow>
 
@@ -761,9 +759,6 @@ const validatePricingRule = (): boolean => {
                 :data="categoriesData"
                 placeholder="请选择分类"
                 :props="{ value: 'id', label: 'name', children: 'children' }"
-                clearable
-                filterable
-                check-strictly
                 style="width: 100%"
               />
             </ElFormItem>
@@ -797,10 +792,7 @@ const validatePricingRule = (): boolean => {
         </ElRow>
 
         <ElDivider content-position="left" style="margin-bottom: 6px">
-          <ElText>
-            价格信息 # 售价 = 进货价格 x 定价系数 or 分类价格系数 x
-            用户等级打折系数 # 固定价格就是最终售价
-          </ElText>
+          <ElText> 价格信息 </ElText>
         </ElDivider>
         <!-- 价格与库存 -->
 
@@ -1017,7 +1009,7 @@ const validatePricingRule = (): boolean => {
 :deep(.el-button),
 :deep(.el-input-number) {
   height: 30px;
-  margin-bottom: 1px;
+  margin-bottom: 10px;
   font-size: 14px;
 }
 
@@ -1029,6 +1021,10 @@ const validatePricingRule = (): boolean => {
 :deep(.el-form-item__label) {
   font-size: 12px;
   color: #8b8787;
+}
+
+:deep(.el-form-item__content) {
+  align-self: stretch;
 }
 
 .image-grid {

@@ -31,7 +31,7 @@ export function useSchema(): VbenFormSchema[] {
     {
       component: 'Input',
       fieldName: 'periodic_task_name',
-      label: '周期任务名称',
+      label: '任务名称',
       componentProps: {
         readonly: true,
       },
@@ -39,7 +39,7 @@ export function useSchema(): VbenFormSchema[] {
     {
       component: 'Input',
       fieldName: 'task_name',
-      label: '任务函数名',
+      label: '任务函数',
       componentProps: {
         readonly: true,
       },
@@ -55,7 +55,7 @@ export function useSchema(): VbenFormSchema[] {
     {
       component: 'Input',
       fieldName: 'worker',
-      label: '执行 Worker',
+      label: '执行者',
       componentProps: {
         readonly: true,
       },
@@ -155,16 +155,12 @@ export function useColumns(
 ): VxeTableGridOptions<Api.Item>['columns'] {
   return [
     {
-      field: 'task_id',
-      title: '任务ID',
-    },
-    {
-      field: 'task_name',
-      title: '任务名称',
+      field: 'id',
+      title: 'ID',
     },
     {
       field: 'periodic_task_name',
-      title: '定期任务名称',
+      title: '任务名称',
     },
     {
       field: 'take_status',
@@ -174,11 +170,6 @@ export function useColumns(
       field: 'date_done',
       title: '完成时间',
     },
-    {
-      field: 'worker',
-      title: '执行者',
-    },
-
     {
       align: 'center',
       cellRender: {

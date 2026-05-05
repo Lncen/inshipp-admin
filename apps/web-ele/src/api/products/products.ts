@@ -38,7 +38,7 @@ export namespace Api {
 
     // ── 价格（注意：Decimal 在 JSON 中为 string）────────
     cost_price: string; // e.g. "99.99000000"
-    purchase_step: string; // e.g. "1.0000"
+    purchase_step: number; // e.g. "1.0000"
     price_display_precision: number;
     images: string[];
     item_coefficient: null | number;
@@ -67,7 +67,7 @@ export namespace Api {
     input_fields_overridden: number;
 
     // ── 上游 ───────────────────────────────────
-    vendor_id?: string;
+    vendor_id: number | undefined;
     vendor_sku_id?: null | number;
     params_template: undefined[];
 
@@ -216,9 +216,9 @@ export const isClosedOptions = [
 
 // 7. 规则类型 (RuleType)
 export const ruleTypeOptions = [
-  { label: '固定', value: 1 },
-  { label: '定价系数', value: 2 },
-  { label: '分类系数', value: 3 },
+  { label: '模板规则', value: 1 },
+  { label: '固定价格', value: 2 },
+  { label: '系数规则', value: 3 },
 ] as const;
 
 export {

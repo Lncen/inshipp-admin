@@ -71,7 +71,7 @@ async function getList(params?: Api.Item) {
   });
 }
 
-async function getCategory(params: { vendor_id: string }) {
+async function getCategory(params: { vendor_id: number }) {
   return requestClient.get<Api.Item[]>('vendors-category', {
     params,
   });

@@ -5,15 +5,16 @@ import { computed, ref } from 'vue';
 
 import { useVbenModal } from '@vben/common-ui';
 
-import { ElButton } from 'element-plus';
+import { ElButton, ElForm } from 'element-plus';
 
-import { useVbenForm } from '#/adapter/form';
 import { create, update } from '#/api/tasks/interval_schedule';
 import { $t } from '#/locales';
 
-import { useSchema } from '../data';
-
 const emit = defineEmits(['success']);
+
+// import { getCategories } from '#/api/products/products';
+
+const data = ref<any>({});
 const formData = ref<Api.Item>();
 const getTitle = computed(() => {
   return formData.value?.id
@@ -21,28 +22,18 @@ const getTitle = computed(() => {
     : $t('ui.actionTitle.create', [$t('system.dept.name')]);
 });
 
-const [Form, formApi] = useVbenForm({
-  layout: 'vertical', // 垂直布局
-  // layout: 'horizontal',  // 水平布局
-  schema: useSchema(),
-  showDefaultActions: false,
-});
+function resetForm() {}
 
-function resetForm() {
-  formApi.resetForm();
-  formApi.setValues(formData.value || {});
-}
-
+const formRef = ref<InstanceType<typeof ElForm> | null>(null);
 const [Modal, modalApi] = useVbenModal({
   async onConfirm() {
-    const { valid } = await formApi.validate();
+    const valid = await formRef.value?.validate().catch(() => false);
     if (valid) {
       modalApi.lock();
-      const data = await formApi.getValues();
       try {
         await (formData.value?.id
-          ? update(formData.value.id, data as Omit<Api.Item, 'id'>)
-          : create(data as Omit<Api.Item, 'id'>));
+          ? update(formData.value.id, formData.value as Omit<Api.Item, 'id'>)
+          : create(formData.value as Omit<Api.Item, 'id'>));
         modalApi.close();
         emit('success');
       } finally {
@@ -52,10 +43,9 @@ const [Modal, modalApi] = useVbenModal({
   },
   onOpenChange(isOpen) {
     if (isOpen) {
-      const data = modalApi.getData<Api.Item>();
-      if (data) {
+      data.value = modalApi.getData<Api.Item>();
+      if (data.value) {
         formData.value = data;
-        formApi.setValues(formData.value);
       }
     }
   },
@@ -64,7 +54,6 @@ const [Modal, modalApi] = useVbenModal({
 
 <template>
   <Modal :title="getTitle">
-    <Form class="mx-4" />
     <template #prepend-footer>
       <div class="flex-auto">
         <ElButton type="primary" danger @click="resetForm">

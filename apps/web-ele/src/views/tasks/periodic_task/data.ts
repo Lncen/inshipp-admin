@@ -34,8 +34,8 @@ export function useColumns(
   return [
     {
       field: 'id',
-      title: $t('system.role.id'),
-      width: 80,
+      title: '编号',
+      width: 70,
     },
     {
       field: 'name',
@@ -45,12 +45,12 @@ export function useColumns(
     {
       field: 'schedule_type',
       title: '执行类型',
-      width: 110,
+      width: 80,
     },
     {
       field: 'enabled',
       title: '是否启用',
-      width: 100,
+      width: 80,
       slots: {
         default: ({ row }: { row: Api.Item }) => {
           return h('div', { class: 'flex items-center justify-center' }, [
@@ -76,10 +76,10 @@ export function useColumns(
             h(
               ElTag,
               {
-                type: row.enabled ? 'success' : 'info', // 启用显示绿色，禁用显示红色
+                type: row.one_off ? 'success' : 'info', // 启用显示绿色，禁用显示红色
                 size: 'small',
               },
-              () => (row.enabled ? '是' : '否'), // 显示中文状态
+              () => (row.one_off ? '是' : '否'), // 显示中文状态
             ),
           ]);
         },
@@ -98,6 +98,7 @@ export function useColumns(
     {
       field: 'last_run_at',
       title: '上一次运行',
+      minWidth: 130,
     },
     {
       field: 'date_changed',

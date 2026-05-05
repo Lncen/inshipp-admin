@@ -11,28 +11,35 @@ import { useRoute } from 'vue-router';
 import { ColPage, useVbenModal } from '@vben/common-ui';
 
 import { refAutoReset } from '@vueuse/core';
-import { ElMessage } from 'element-plus';
+import { ElButton, ElMessage } from 'element-plus';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
+import { getTemplateSelect } from '#/api/products/pricing';
+import { getCategories } from '#/api/products/products';
 import { getCategory, getProducts } from '#/api/vendor/vendor_product';
 
 import { useColumns } from './data';
-import Modals from './modules/edit.vue';
+import Form from './modules/form.vue';
 import ProductCategoryTree from './modules/ProductCategoryTree.vue';
+// import { create, statusOptions, update } from '#/api/products/pricing';
 
-// const route = useRoute();
-
-const selectVendorId = ref<string>();
-const gridRef = ref<any>();
+const selectVendorId = ref<any>();
 const categoriesDate = ref<Api.Item[]>([]);
 // 当前选中的分类 ID
 const selectedCategoryId = ref<number>();
 const selectedCategoryPath = ref<string>('');
 // 修改类型定义，应该是商品数组而不是 ListResponse
-const isLoading = refAutoReset(false, 3000);
+const isLoading = refAutoReset(false, 30_000);
 
 // 选中的表格行
 const selectedRows = ref<Api.Item[]>([]);
+
+// ------------编辑模态框-----------------
+const [FormModal, formModalApi] = useVbenModal({
+  connectedComponent: Form,
+  destroyOnClose: true,
+});
+
 const [Grid, gridApi] = useVbenVxeGrid({
   showSearchForm: false,
   // 修改 gridEvents 部分
@@ -75,10 +82,8 @@ const [Grid, gridApi] = useVbenVxeGrid({
   } as VxeTableGridOptions<Api.Item>,
 });
 
-async function onEdit(row: Api.Item) {
-  // const selectedRows = gridRef.value?.getCheckboxRecords();
-
-  console.warn('row:', row);
+async function onEdit() {
+  formModalApi.open();
 }
 
 function onActionClick(e: OnActionClickParams<Api.Item>) {
@@ -88,7 +93,7 @@ function onActionClick(e: OnActionClickParams<Api.Item>) {
       break;
     }
     case 'edit': {
-      onEdit(e.row);
+      onEdit();
       break;
     }
   }
@@ -138,17 +143,29 @@ async function fetchProduct() {
     isLoading.value = false;
   }
 }
-// 刷新
-// function _onRefresh() {
-//   gridApi.query();
-// }
+
+const categoriesSelect = ref<any>(null);
+const templateSelect = ref<any>(null);
+async function onSync() {
+  const selectedIds = selectedRows.value.map((row) => row.id);
+  const parmet = {
+    vendor_id: selectVendorId.value,
+    product_ids: selectedIds,
+  };
+  if (categoriesSelect.value) {
+    categoriesSelect.value = await getCategories(); // 分类
+    templateSelect.value = await getTemplateSelect(); // 模板
+  }
+
+  formModalApi.setData({ categoriesSelect, templateSelect, ...parmet }).open();
+  // console.log('要同步的参数:', parmet);
+}
 
 // 组件挂载时获取分类数据
 onMounted(() => {
   try {
     const route = useRoute();
     selectVendorId.value = route.query.vendor_id;
-    console.warn(route.query.vendor_id); // "123"
     fetchCategories();
   } catch (error) {
     console.error('获取分类数据失败:', error);
@@ -205,11 +222,6 @@ const page_props = reactive({
   splitHandle: false,
   splitLine: false,
 });
-
-// ------------编辑模态框-----------------
-const [Modal] = useVbenModal({
-  connectedComponent: Modals,
-});
 </script>
 
 <template>
@@ -225,9 +237,15 @@ const [Modal] = useVbenModal({
       </div>
     </template>
     <div class="flex h-full flex-col">
-      <Grid :table-title="selectedCategoryPath" ref="gridRef" />
+      <Grid :table-title="selectedCategoryPath">
+        <template #toolbar-tools>
+          <ElButton type="primary" @click="onSync">
+            {{ '同步商品' }}
+          </ElButton>
+        </template>
+      </Grid>
     </div>
-    <Modal />
+    <FormModal />
   </ColPage>
 </template>
 

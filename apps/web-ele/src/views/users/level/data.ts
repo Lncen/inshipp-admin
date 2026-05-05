@@ -24,52 +24,20 @@ export function useFormSchema(): VbenFormSchema[] {
     },
     {
       component: 'Input',
-      fieldName: 'level', // API 使用 level_name（对应模型的 name 字段）
-      label: $t('用户等级'),
-      rules: 'required',
-    },
-    {
-      component: 'Input',
       fieldName: 'name', // API 使用 level_name（对应模型的 name 字段）
       label: $t('users.memberLevel.levelName'),
       rules: 'required',
     },
     {
       component: 'Input',
-      fieldName: 'discount_rate',
-      label: $t('折扣系数'),
-      componentProps: {
-        readonly: true,
-      },
-    },
-    {
-      component: 'Input',
-      fieldName: 'growth_threshold',
-      label: $t('成长值门槛'),
-      componentProps: {
-        readonly: true,
-      },
-    },
-
-    {
-      component: 'RadioGroup',
-      fieldName: 'is_active',
-      label: $t('users.memberLevel.status'),
-      defaultValue: true,
-      componentProps: {
-        buttonStyle: 'solid',
-        optionType: 'button',
-        options: [
-          { label: $t('common.enabled'), value: true },
-          { label: $t('common.disabled'), value: false },
-        ],
-      },
+      fieldName: 'level', // API 使用 level_name（对应模型的 name 字段）
+      label: '等级',
+      rules: 'required',
     },
     {
       component: 'Input',
       fieldName: 'description', // API 使用 level_name（对应模型的 name 字段）
       label: $t('描述'),
-      rules: 'required',
     },
   ];
 }

@@ -3,21 +3,18 @@ import type {
   OnActionClickParams,
   VxeTableGridOptions,
 } from '#/adapter/vxe-table';
-import type { Api } from '#/api/tasks/periodic_task';
+import type { Api } from '#/api/products/pricing';
 
 import { ref } from 'vue';
 
 import { Page, useVbenModal } from '@vben/common-ui';
+import { Plus } from '@vben/icons';
 
 import { ElButton, ElLoading, ElMessage } from 'element-plus';
 
 import { useVbenVxeGrid } from '#/adapter/vxe-table';
-import {
-  getDetail,
-  getList,
-  getTaskConfig,
-  remove,
-} from '#/api/tasks/periodic_task';
+import { getDetail, getList, remove } from '#/api/products/pricing';
+import { getUserLevelSelect } from '#/api/user/level';
 import { $t } from '#/locales';
 
 import { useColumns } from './data';
@@ -28,36 +25,61 @@ const [FormModal, formModalApi] = useVbenModal({
   destroyOnClose: true,
 });
 
-/**
- * 编辑部门
+const userLevel = ref<any>(null);
+/** S
+ * 编辑S
  * @param row
  */
-const taskConfig = ref(null);
 async function onEdit(row: Api.Item) {
-  // 检查 row.id 是否有效
   if (!row.id) {
-    ElMessage.error($t('ui.message.invalidId'));
+    ElMessage.error({
+      message: $t('ui.actionMessage.editFailed', ['无效ID']),
+      key: 'action_process_msg',
+    });
     return;
   }
-  const rowData = await getDetail(row.id);
-  if (!taskConfig.value) {
-    taskConfig.value = await getTaskConfig();
+
+  try {
+    // 1. 加载用户等级（如果尚未加载）
+    if (!userLevel.value) {
+      const levelRes = await getUserLevelSelect();
+      // 可选：验证返回是否为有效数组
+      if (!Array.isArray(levelRes) || levelRes.length === 0) {
+        ElMessage.warning('未获取到用户等级数据，请稍后重试');
+        return;
+      }
+      userLevel.value = levelRes;
+    }
+
+    // 2. 加载模板详情
+    const template = await getDetail(row.id);
+    if (!template) {
+      ElMessage.error('未能加载模板详情');
+      return;
+    }
+
+    // 3. 确保两者都存在，再打开弹窗
+    formModalApi
+      .setData({
+        template,
+        userLevels: userLevel.value,
+      })
+      .open();
+  } catch (error) {
+    console.error('加载编辑数据失败:', error);
+    ElMessage.error('加载数据失败，请稍后重试');
   }
-  formModalApi.setData({ rowData, taskConfig: taskConfig.value }).open();
 }
 
 /**
- * 创建新部门
+ * 创建
  */
-async function onCreate() {
-  if (!taskConfig.value) {
-    taskConfig.value = await getTaskConfig();
-  }
-  formModalApi.setData({ taskConfig: taskConfig.value }).open();
+function onCreate() {
+  formModalApi.setData(null).open();
 }
 
 /**
- * 删除部门
+ * 删除
  * @param row
  */
 function onDelete(row: Api.Item) {
@@ -66,22 +88,29 @@ function onDelete(row: Api.Item) {
     background: 'rgba(0, 0, 0, 0.8)',
   });
 
-  remove(row.id)
-    .then(() => {
-      ElMessage.success({
-        message: $t('ui.actionMessage.deleteSuccess', [row.id]),
-        key: 'action_process_msg',
+  if (row.id) {
+    remove(row.id)
+      .then(() => {
+        ElMessage.success({
+          message: $t('ui.actionMessage.deleteSuccess', [row.id]),
+          key: 'action_process_msg',
+        });
+        refreshGrid();
+      })
+      .finally(() => {
+        // 无论成功还是失败都关闭 loading
+        loadingInstance.close();
+      })
+      .catch((error) => {
+        // 可以在这里添加错误处理
+        console.error('Delete failed:', error);
       });
-      refreshGrid();
-    })
-    .finally(() => {
-      // 无论成功还是失败都关闭 loading
-      loadingInstance.close();
-    })
-    .catch((error) => {
-      // 可以在这里添加错误处理
-      console.error('Delete failed:', error);
+  } else {
+    ElMessage.error({
+      message: $t('ui.actionMessage.deleteFailed', [row.id]),
+      key: 'action_process_msg',
     });
+  }
 }
 
 /**
@@ -144,10 +173,11 @@ function refreshGrid() {
 <template>
   <Page auto-content-height>
     <FormModal @success="refreshGrid" />
-    <Grid table-title="任务表">
+    <Grid table-title="价格模板">
       <template #toolbar-tools>
         <ElButton type="primary" @click="onCreate">
-          {{ '新建任务' }}
+          <Plus class="size-5" />
+          {{ '价格模板' }}
         </ElButton>
       </template>
     </Grid>

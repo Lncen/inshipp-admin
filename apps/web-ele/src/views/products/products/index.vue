@@ -254,8 +254,7 @@ const [Modal, modalApi] = useVbenModal({
       <Grid :table-title="selectedCategoryPath">
         <template #toolbar-tools>
           <ElButton type="primary" @click="onCreate">
-            <Plus class="size-5" />
-            {{ $t('ui.actionTitle.create', [$t('products.product')]) }}
+            {{ '新建商品' }}
           </ElButton>
         </template>
       </Grid>

@@ -94,7 +94,7 @@ async function create(data: any) {
  * @param id 角色 ID
  * @param data 角色数据
  */
-async function update(id: string, data: any) {
+async function update(id: number, data: any) {
   return requestClient.put(`vendors/${id}`, data);
 }
 
